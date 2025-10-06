@@ -43,3 +43,21 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+
+#Ignore localization gen files
+lib/core/localization/l10n/*.dart
+# Ignore generated files
+*.mocks.dart
+*.g.dart
+*.freezed.dart
+injection.config.dart
+
+.env.development
+.env.production
+.env.staging
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release

@@ -1,0 +1,684 @@
+{
+  "transactions": [
+    {
+      "id": "txn_001",
+      "title": "Salary",
+      "amount": 85000.00,
+      "type": "income",
+      "category": {
+        "id": "cat_income",
+        "name": "Salary",
+        "icon": "payments",
+        "color": "#00C853"
+      },
+      "date": "2025-10-01T00:00:00Z",
+      "description": "Monthly salary deposit"
+    },
+    {
+      "id": "txn_002",
+      "title": "Grocery Shopping",
+      "amount": 2500.00,
+      "type": "expense",
+      "category": {
+        "id": "cat_001",
+        "name": "Food & Dining",
+        "icon": "restaurant",
+        "color": "#FF6B6B"
+      },
+      "date": "2025-10-01T10:30:00Z",
+      "description": "Weekly groceries from Shwapno"
+    },
+    {
+      "id": "txn_003",
+      "title": "Uber Ride",
+      "amount": 350.00,
+      "type": "expense",
+      "category": {
+        "id": "cat_002",
+        "name": "Transportation",
+        "icon": "directions_car",
+        "color": "#4ECDC4"
+      },
+      "date": "2025-10-01T14:15:00Z",
+      "description": "Ride to office"
+    },
+    {
+      "id": "txn_004",
+      "title": "Netflix Subscription",
+      "amount": 800.00,
+      "type": "expense",
+      "category": {
+        "id": "cat_004",
+        "name": "Entertainment",
+        "icon": "movie",
+        "color": "#95E1D3"
+      },
+      "date": "2025-09-30T08:00:00Z",
+      "description": "Monthly subscription"
+    },
+    {
+      "id": "txn_005",
+      "title": "Electricity Bill",
+      "amount": 3200.00,
+      "type": "expense",
+      "category": {
+        "id": "cat_005",
+        "name": "Bills & Utilities",
+        "icon": "receipt",
+        "color": "#F38181"
+      },
+      "date": "2025-09-28T16:45:00Z",
+      "description": "September electricity bill"
+    },
+    {
+      "id": "txn_006",
+      "title": "Online Shopping",
+      "amount": 4500.00,
+      "type": "expense",
+      "category": {
+        "id": "cat_003",
+        "name": "Shopping",
+        "icon": "shopping_bag",
+        "color": "#FFD93D"
+      },
+      "date": "2025-09-27T20:30:00Z",
+      "description": "Clothing from Daraz"
+    },
+    {
+      "id": "txn_007",
+      "title": "Restaurant Dinner",
+      "amount": 1800.00,
+      "type": "expense",
+      "category": {
+        "id": "cat_001",
+        "name": "Food & Dining",
+        "icon": "restaurant",
+        "color": "#FF6B6B"
+      },
+      "date": "2025-09-26T19:00:00Z",
+      "description": "Dinner at The Kabab Factory"
+    },
+    {
+      "id": "txn_008",
+      "title": "Freelance Project",
+      "amount": 15000.00,
+      "type": "income",
+      "category": {
+        "id": "cat_freelance",
+        "name": "Freelance",
+        "icon": "work",
+        "color": "#00C853"
+      },
+      "date": "2025-09-25T12:00:00Z",
+      "description": "Payment for mobile app project"
+    },
+    {
+      "id": "txn_009",
+      "title": "Internet Bill",
+      "amount": 1500.00,
+      "type": "expense",
+      "category": {
+        "id": "cat_005",
+        "name": "Bills & Utilities",
+        "icon": "receipt",
+        "color": "#F38181"
+      },
+      "date": "2025-09-24T11:00:00Z",
+      "description": "Monthly broadband bill"
+    },
+    {
+      "id": "txn_010",
+      "title": "Coffee Shop",
+      "amount": 450.00,
+      "type": "expense",
+      "category": {
+        "id": "cat_001",
+        "name": "Food & Dining",
+        "icon": "restaurant",
+        "color": "#FF6B6B"
+      },
+      "date": "2025-09-23T09:30:00Z",
+      "description": "Morning coffee at Barista"
+    },
+    {
+      "id": "txn_011",
+      "title": "Gas Station",
+      "amount": 2000.00,
+      "type": "expense",
+      "category": {
+        "id": "cat_002",
+        "name": "Transportation",
+        "icon": "directions_car",
+        "color": "#4ECDC4"
+      },
+      "date": "2025-09-22T18:45:00Z",
+      "description": "Fuel refill"
+    },
+    {
+      "id": "txn_012",
+      "title": "Pharmacy",
+      "amount": 850.00,
+      "type": "expense",
+      "category": {
+        "id": "cat_006",
+        "name": "Healthcare",
+        "icon": "local_hospital",
+        "color": "#BA68C8"
+      },
+      "date": "2025-09-21T11:20:00Z",
+      "description": "Medicine purchase"
+    },
+    {
+      "id": "txn_013",
+      "title": "Gym Membership",
+      "amount": 3000.00,
+      "type": "expense",
+      "category": {
+        "id": "cat_007",
+        "name": "Fitness",
+        "icon": "fitness_center",
+        "color": "#FF7043"
+      },
+      "date": "2025-09-20T09:00:00Z",
+      "description": "Monthly gym subscription"
+    },
+    {
+      "id": "txn_014",
+      "title": "Book Purchase",
+      "amount": 1200.00,
+      "type": "expense",
+      "category": {
+        "id": "cat_008",
+        "name": "Education",
+        "icon": "school",
+        "color": "#29B6F6"
+      },
+      "date": "2025-09-19T15:30:00Z",
+      "description": "Programming books from Rokomari"
+    },
+    {
+      "id": "txn_015",
+      "title": "Lunch with Team",
+      "amount": 2200.00,
+      "type": "expense",
+      "category": {
+        "id": "cat_001",
+        "name": "Food & Dining",
+        "icon": "restaurant",
+        "color": "#FF6B6B"
+      },
+      "date": "2025-09-18T13:00:00Z",
+      "description": "Team lunch at Pizza Hut"
+    },
+    {
+      "id": "txn_016",
+      "title": "Mobile Recharge",
+      "amount": 500.00,
+      "type": "expense",
+      "category": {
+        "id": "cat_005",
+        "name": "Bills & Utilities",
+        "icon": "receipt",
+        "color": "#F38181"
+      },
+      "date": "2025-09-17T10:15:00Z",
+      "description": "Prepaid mobile recharge"
+    },
+    {
+      "id": "txn_017",
+      "title": "Movie Tickets",
+      "amount": 1400.00,
+      "type": "expense",
+      "category": {
+        "id": "cat_004",
+        "name": "Entertainment",
+        "icon": "movie",
+        "color": "#95E1D3"
+      },
+      "date": "2025-09-16T19:30:00Z",
+      "description": "Cinema tickets for 2"
+    },
+    {
+      "id": "txn_018",
+      "title": "Online Course",
+      "amount": 5000.00,
+      "type": "expense",
+      "category": {
+        "id": "cat_008",
+        "name": "Education",
+        "icon": "school",
+        "color": "#29B6F6"
+      },
+      "date": "2025-09-15T14:00:00Z",
+      "description": "Flutter masterclass on Udemy"
+    },
+    {
+      "id": "txn_019",
+      "title": "Bonus",
+      "amount": 10000.00,
+      "type": "income",
+      "category": {
+        "id": "cat_bonus",
+        "name": "Bonus",
+        "icon": "card_giftcard",
+        "color": "#00C853"
+      },
+      "date": "2025-09-14T00:00:00Z",
+      "description": "Performance bonus"
+    },
+    {
+      "id": "txn_020",
+      "title": "Grocery Shopping",
+      "amount": 3200.00,
+      "type": "expense",
+      "category": {
+        "id": "cat_001",
+        "name": "Food & Dining",
+        "icon": "restaurant",
+        "color": "#FF6B6B"
+      },
+      "date": "2025-09-13T11:45:00Z",
+      "description": "Weekly groceries from Agora"
+    },
+    {
+      "id": "txn_021",
+      "title": "Car Service",
+      "amount": 4500.00,
+      "type": "expense",
+      "category": {
+        "id": "cat_002",
+        "name": "Transportation",
+        "icon": "directions_car",
+        "color": "#4ECDC4"
+      },
+      "date": "2025-09-12T16:00:00Z",
+      "description": "Car maintenance and oil change"
+    },
+    {
+      "id": "txn_022",
+      "title": "Home Decor",
+      "amount": 6500.00,
+      "type": "expense",
+      "category": {
+        "id": "cat_003",
+        "name": "Shopping",
+        "icon": "shopping_bag",
+        "color": "#FFD93D"
+      },
+      "date": "2025-09-11T14:30:00Z",
+      "description": "Furniture items from Otobi"
+    },
+    {
+      "id": "txn_023",
+      "title": "Water Bill",
+      "amount": 800.00,
+      "type": "expense",
+      "category": {
+        "id": "cat_005",
+        "name": "Bills & Utilities",
+        "icon": "receipt",
+        "color": "#F38181"
+      },
+      "date": "2025-09-10T12:00:00Z",
+      "description": "Monthly water bill"
+    },
+    {
+      "id": "txn_024",
+      "title": "Fast Food",
+      "amount": 950.00,
+      "type": "expense",
+      "category": {
+        "id": "cat_001",
+        "name": "Food & Dining",
+        "icon": "restaurant",
+        "color": "#FF6B6B"
+      },
+      "date": "2025-09-09T20:15:00Z",
+      "description": "Burger and fries from KFC"
+    },
+    {
+      "id": "txn_025",
+      "title": "Spotify Premium",
+      "amount": 600.00,
+      "type": "expense",
+      "category": {
+        "id": "cat_004",
+        "name": "Entertainment",
+        "icon": "movie",
+        "color": "#95E1D3"
+      },
+      "date": "2025-09-08T08:30:00Z",
+      "description": "Monthly music subscription"
+    },
+    {
+      "id": "txn_026",
+      "title": "Rickshaw Fare",
+      "amount": 120.00,
+      "type": "expense",
+      "category": {
+        "id": "cat_002",
+        "name": "Transportation",
+        "icon": "directions_car",
+        "color": "#4ECDC4"
+      },
+      "date": "2025-09-07T17:20:00Z",
+      "description": "Short distance travel"
+    },
+    {
+      "id": "txn_027",
+      "title": "Haircut",
+      "amount": 400.00,
+      "type": "expense",
+      "category": {
+        "id": "cat_009",
+        "name": "Personal Care",
+        "icon": "face",
+        "color": "#AB47BC"
+      },
+      "date": "2025-09-06T11:00:00Z",
+      "description": "Salon visit"
+    },
+    {
+      "id": "txn_028",
+      "title": "Vegetables",
+      "amount": 650.00,
+      "type": "expense",
+      "category": {
+        "id": "cat_001",
+        "name": "Food & Dining",
+        "icon": "restaurant",
+        "color": "#FF6B6B"
+      },
+      "date": "2025-09-05T08:45:00Z",
+      "description": "Fresh vegetables from market"
+    },
+    {
+      "id": "txn_029",
+      "title": "Gift Purchase",
+      "amount": 3500.00,
+      "type": "expense",
+      "category": {
+        "id": "cat_003",
+        "name": "Shopping",
+        "icon": "shopping_bag",
+        "color": "#FFD93D"
+      },
+      "date": "2025-09-04T15:30:00Z",
+      "description": "Birthday gift for friend"
+    },
+    {
+      "id": "txn_030",
+      "title": "Consulting Fee",
+      "amount": 8000.00,
+      "type": "income",
+      "category": {
+        "id": "cat_freelance",
+        "name": "Freelance",
+        "icon": "work",
+        "color": "#00C853"
+      },
+      "date": "2025-09-03T00:00:00Z",
+      "description": "Technical consulting payment"
+    }
+  ],
+  "categories": [
+    {
+      "id": "cat_001",
+      "name": "Food & Dining",
+      "icon": "restaurant",
+      "color": "#FF6B6B",
+      "budget": 20000.00,
+      "type": "expense"
+    },
+    {
+      "id": "cat_002",
+      "name": "Transportation",
+      "icon": "directions_car",
+      "color": "#4ECDC4",
+      "budget": 15000.00,
+      "type": "expense"
+    },
+    {
+      "id": "cat_003",
+      "name": "Shopping",
+      "icon": "shopping_bag",
+      "color": "#FFD93D",
+      "budget": 10000.00,
+      "type": "expense"
+    },
+    {
+      "id": "cat_004",
+      "name": "Entertainment",
+      "icon": "movie",
+      "color": "#95E1D3",
+      "budget": 8000.00,
+      "type": "expense"
+    },
+    {
+      "id": "cat_005",
+      "name": "Bills & Utilities",
+      "icon": "receipt",
+      "color": "#F38181",
+      "budget": 12000.00,
+      "type": "expense"
+    },
+    {
+      "id": "cat_006",
+      "name": "Healthcare",
+      "icon": "local_hospital",
+      "color": "#BA68C8",
+      "budget": 5000.00,
+      "type": "expense"
+    },
+    {
+      "id": "cat_007",
+      "name": "Fitness",
+      "icon": "fitness_center",
+      "color": "#FF7043",
+      "budget": 3000.00,
+      "type": "expense"
+    },
+    {
+      "id": "cat_008",
+      "name": "Education",
+      "icon": "school",
+      "color": "#29B6F6",
+      "budget": 7000.00,
+      "type": "expense"
+    },
+    {
+      "id": "cat_009",
+      "name": "Personal Care",
+      "icon": "face",
+      "color": "#AB47BC",
+      "budget": 2000.00,
+      "type": "expense"
+    },
+    {
+      "id": "cat_income",
+      "name": "Salary",
+      "icon": "payments",
+      "color": "#00C853",
+      "budget": 0,
+      "type": "income"
+    },
+    {
+      "id": "cat_freelance",
+      "name": "Freelance",
+      "icon": "work",
+      "color": "#00C853",
+      "budget": 0,
+      "type": "income"
+    },
+    {
+      "id": "cat_bonus",
+      "name": "Bonus",
+      "icon": "card_giftcard",
+      "color": "#00C853",
+      "budget": 0,
+      "type": "income"
+    }
+  ],
+  "analytics": [
+    {
+      "id": "1",
+      "summary": {
+        "totalIncome": 118000.00,
+        "totalExpense": 52920.00,
+        "netBalance": 65080.00,
+        "savingsRate": 55.2
+      },
+      "categoryBreakdown": [
+        {
+          "category": {
+            "id": "cat_001",
+            "name": "Food & Dining",
+            "icon": "restaurant",
+            "color": "#FF6B6B"
+          },
+          "amount": 13950.00,
+          "percentage": 26.4,
+          "transactionCount": 8,
+          "budget": 20000.00,
+          "budgetUtilization": 69.8
+        },
+        {
+          "category": {
+            "id": "cat_002",
+            "name": "Transportation",
+            "icon": "directions_car",
+            "color": "#4ECDC4"
+          },
+          "amount": 6970.00,
+          "percentage": 13.2,
+          "transactionCount": 4,
+          "budget": 15000.00,
+          "budgetUtilization": 46.5
+        },
+        {
+          "category": {
+            "id": "cat_003",
+            "name": "Shopping",
+            "icon": "shopping_bag",
+            "color": "#FFD93D"
+          },
+          "amount": 14500.00,
+          "percentage": 27.4,
+          "transactionCount": 3,
+          "budget": 10000.00,
+          "budgetUtilization": 145.0
+        },
+        {
+          "category": {
+            "id": "cat_004",
+            "name": "Entertainment",
+            "icon": "movie",
+            "color": "#95E1D3"
+          },
+          "amount": 2800.00,
+          "percentage": 5.3,
+          "transactionCount": 3,
+          "budget": 8000.00,
+          "budgetUtilization": 35.0
+        },
+        {
+          "category": {
+            "id": "cat_005",
+            "name": "Bills & Utilities",
+            "icon": "receipt",
+            "color": "#F38181"
+          },
+          "amount": 6000.00,
+          "percentage": 11.3,
+          "transactionCount": 4,
+          "budget": 12000.00,
+          "budgetUtilization": 50.0
+        },
+        {
+          "category": {
+            "id": "cat_006",
+            "name": "Healthcare",
+            "icon": "local_hospital",
+            "color": "#BA68C8"
+          },
+          "amount": 850.00,
+          "percentage": 1.6,
+          "transactionCount": 1,
+          "budget": 5000.00,
+          "budgetUtilization": 17.0
+        },
+        {
+          "category": {
+            "id": "cat_007",
+            "name": "Fitness",
+            "icon": "fitness_center",
+            "color": "#FF7043"
+          },
+          "amount": 3000.00,
+          "percentage": 5.7,
+          "transactionCount": 1,
+          "budget": 3000.00,
+          "budgetUtilization": 100.0
+        },
+        {
+          "category": {
+            "id": "cat_008",
+            "name": "Education",
+            "icon": "school",
+            "color": "#29B6F6"
+          },
+          "amount": 6200.00,
+          "percentage": 11.7,
+          "transactionCount": 2,
+          "budget": 7000.00,
+          "budgetUtilization": 88.6
+        },
+        {
+          "category": {
+            "id": "cat_009",
+            "name": "Personal Care",
+            "icon": "face",
+            "color": "#AB47BC"
+          },
+          "amount": 400.00,
+          "percentage": 0.8,
+          "transactionCount": 1,
+          "budget": 2000.00,
+          "budgetUtilization": 20.0
+        }
+      ],
+      "monthlyTrend": [
+        {
+          "month": "2025-04",
+          "income": 85000.00,
+          "expense": 45000.00
+        },
+        {
+          "month": "2025-05",
+          "income": 90000.00,
+          "expense": 48000.00
+        },
+        {
+          "month": "2025-06",
+          "income": 95000.00,
+          "expense": 51000.00
+        },
+        {
+          "month": "2025-07",
+          "income": 100000.00,
+          "expense": 52000.00
+        },
+        {
+          "month": "2025-08",
+          "income": 95000.00,
+          "expense": 49000.00
+        },
+        {
+          "month": "2025-09",
+          "income": 118000.00,
+          "expense": 52920.00
+        }
+      ]
+    }
+  ]
+}
