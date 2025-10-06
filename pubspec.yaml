@@ -64,6 +64,8 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_easyloading: ^3.0.5
+  flutter_speed_dial: ^7.0.0
+  badges: ^3.1.2
 
 dev_dependencies:
   flutter_test:
