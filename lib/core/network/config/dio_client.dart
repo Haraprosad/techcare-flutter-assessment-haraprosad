@@ -9,7 +9,11 @@ import 'package:techcare_assessment_app/core/network/config/interceptors/error_i
 import 'package:techcare_assessment_app/core/network/config/interceptors/retry_interceptor.dart';
 import 'package:techcare_assessment_app/flavors/env_config.dart';
 
-/// Singleton service for configuring and providing a Dio HTTP client instance.
+/// Central HTTP client setup using Dio.
+///
+/// This configures a single Dio instance with all the interceptors we need
+/// for error handling, retries, and connectivity checks. Gets injected
+/// wherever we need to make API calls.
 @lazySingleton
 class DioClient {
   final ConnectionManager _connectionManager;
@@ -21,7 +25,7 @@ class DioClient {
 
   Dio get client => _dio;
 
-  /// Creates and configures Dio client with interceptors and base options.
+  /// Builds the Dio client with base URL, timeouts, and all our interceptors
   Dio _createDioClient() {
     final EnvConfig envConfig = EnvConfig.instance;
     final dio = Dio(
@@ -37,7 +41,8 @@ class DioClient {
       ),
     );
 
-    // Add interceptors for connectivity, error logging, retry, and optional logging in debug mode.
+    // Chain interceptors for retry logic and error handling
+    // Note: ConnectivityInterceptor is disabled since we use reactive monitoring instead
     dio.interceptors.addAll([
       // ConnectivityInterceptor(_connectionManager), // Not needed - using reactive monitoring instead
       RetryInterceptor(

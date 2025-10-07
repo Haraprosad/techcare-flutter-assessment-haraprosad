@@ -7,16 +7,21 @@ import 'package:techcare_assessment_app/core/network/services/localization_servi
 import 'package:techcare_assessment_app/core/network/error_handling/models/api_call_failure_model.dart';
 import 'package:injectable/injectable.dart';
 
-/// Class that handles network errors and provides localized error messages.
+/// Translates raw network errors into user-friendly messages.
+///
+/// Takes any error from an API call and converts it to something
+/// we can show to users in their language. Handles Dio errors,
+/// HTTP status codes, and custom backend error formats.
 @lazySingleton
 class NetworkErrorHandler {
   final LocalizationService _localizationService;
 
   NetworkErrorHandler(this._localizationService);
 
-  /// Main method to handle errors, including Dio exceptions.
+  /// Main entry point for error handling - figures out what went wrong
   ApiCallFailureModel handleError(dynamic error, [StackTrace? stackTrace]) {
     if (error is DioException) {
+      // Special case for offline errors
       if (error.error == CustomErrorType.noInternet) {
         return ApiCallFailureModel(
           code: ResponseCode.NO_INTERNET,
@@ -32,6 +37,7 @@ class NetworkErrorHandler {
       if (error is CustomException) {
         return _handleCustomException(error, stackTrace);
       }
+      // Fallback for unexpected error types
       return ApiCallFailureModel(
         code: ResponseCode.DEFAULT,
         translatedMessage: _localizationService.translate(
@@ -44,7 +50,7 @@ class NetworkErrorHandler {
     }
   }
 
-  /// Handles specific network error types.
+  /// Breaks down Dio errors by type - timeouts, connection issues, etc.
   ApiCallFailureModel _handleDioError(
     DioException error, [
     StackTrace? stackTrace,
@@ -118,8 +124,9 @@ class NetworkErrorHandler {
     }
   }
 
-  /// Handles HTTP status code errors.
-  /// Supports new API error format:
+  /// Handles server responses with error status codes (4xx, 5xx).
+  ///
+  /// The backend sends errors in this format:
   /// {
   ///   "success": false,
   ///   "error": {
@@ -128,13 +135,15 @@ class NetworkErrorHandler {
   ///     "field": "amount"
   ///   }
   /// }
+  /// We parse that and try to show a localized message if we have one,
+  /// otherwise we just show what the backend sent us.
   ApiCallFailureModel _handleBadResponse(
     DioException error, [
     StackTrace? stackTrace,
   ]) {
     final statusCode = error.response?.statusCode ?? ResponseCode.DEFAULT;
 
-    // Safely convert response data to Map<String, dynamic>
+    // Convert response data to a map we can work with
     Map<String, dynamic>? errorData;
     final responseData = error.response?.data;
     if (responseData != null) {
@@ -147,7 +156,7 @@ class NetworkErrorHandler {
       }
     }
 
-    // Extract error details from new API format
+    // Pull out the error details from the backend response
     String? backendErrorCode;
     String? backendMessage;
     String? errorField;
@@ -159,30 +168,30 @@ class NetworkErrorHandler {
       errorField = errorObject['field'] as String?;
     }
 
-    // Determine message key based on backend error code or HTTP status
+    // Figure out the best message to show the user
     String messageKey;
     String translatedMessage;
 
     if (backendErrorCode != null) {
-      // Try to map backend error code to localized message
+      // See if we have a translation for this error code
       messageKey = _getMessageKeyFromErrorCode(backendErrorCode);
       translatedMessage = _localizationService.translate(messageKey);
 
-      // If translation returns the same key (not found), use backend message
+      // If we don't have a translation, use what the backend sent
       if (translatedMessage == messageKey && backendMessage != null) {
         translatedMessage = backendMessage;
       }
 
-      // Append field name if available for better context
+      // Add the field name if it's a validation error on a specific field
       if (errorField != null && errorField.isNotEmpty) {
         translatedMessage = '$translatedMessage (Field: $errorField)';
       }
     } else {
-      // Fallback to HTTP status code mapping
+      // No error code from backend, fall back to HTTP status codes
       messageKey = _getMessageKeyFromStatusCode(statusCode);
       translatedMessage = _localizationService.translate(messageKey);
 
-      // Use backend message as fallback if available
+      // Still prefer backend message if we have it
       if (backendMessage != null) {
         translatedMessage = backendMessage;
       }
@@ -200,7 +209,7 @@ class NetworkErrorHandler {
     );
   }
 
-  /// Maps backend error code to localized message key
+  /// Looks up the right translation key for a backend error code
   String _getMessageKeyFromErrorCode(String errorCode) {
     switch (errorCode.toUpperCase()) {
       case 'VALIDATION_ERROR':
@@ -223,12 +232,12 @@ class NetworkErrorHandler {
       case 'TRANSACTION_NOT_FOUND':
         return ErrorMessagesKey.transactionNotFound;
       default:
-        return errorCode
-            .toLowerCase(); // Return as-is, will use backend message
+        // Don't recognize this code, return it as-is
+        return errorCode.toLowerCase();
     }
   }
 
-  /// Maps HTTP status code to message key (fallback)
+  /// Maps HTTP status codes to generic error messages
   String _getMessageKeyFromStatusCode(int statusCode) {
     switch (statusCode) {
       case 400:
@@ -246,6 +255,7 @@ class NetworkErrorHandler {
     }
   }
 
+  /// Handles our custom app exceptions (parsing errors, pre-call checks, etc.)
   ApiCallFailureModel _handleCustomException(
     CustomException error, [
     StackTrace? stackTrace,

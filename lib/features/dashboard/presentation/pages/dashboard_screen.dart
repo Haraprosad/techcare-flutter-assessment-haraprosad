@@ -13,21 +13,21 @@ import 'package:techcare_assessment_app/core/theme/constants/breakpoints.dart';
 import 'package:techcare_assessment_app/core/widgets/responsive_layout_builder.dart';
 import 'package:techcare_assessment_app/core/widgets/offline_indicator_banner.dart';
 
-/// Dashboard Screen - Main home screen
+/// The main dashboard - your financial overview at a glance.
 ///
-/// Features:
-/// - Real-time balance summary with visibility toggle
-/// - Category-wise spending visualization
-/// - Recent transactions with pull-to-refresh
-/// - Expandable FAB for quick actions
-/// - Parallax scrolling effect
-/// - Skeleton loading states
+/// Shows:
+/// - Balance summary with hide/show toggle
+/// - Category spending breakdown
+/// - Recent transactions list
+/// - Quick add transaction FAB
+/// - Pull to refresh
+/// - Smooth parallax scrolling effect
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Trigger data load only if needed (data is stale or empty)
+    // Load data only if it's stale - smart caching in action
     context.read<DashboardBloc>().add(const LoadDashboardDataIfNeededEvent());
     return const _DashboardScreenView();
   }
@@ -47,6 +47,7 @@ class _DashboardScreenViewState extends State<_DashboardScreenView> {
   @override
   void initState() {
     super.initState();
+    // Track scroll for parallax effect
     _scrollController.addListener(_onScroll);
   }
 
@@ -68,13 +69,13 @@ class _DashboardScreenViewState extends State<_DashboardScreenView> {
       child: Scaffold(
         body: BlocConsumer<DashboardBloc, DashboardState>(
           listenWhen: (previous, current) {
-            // Only listen when error state changes to prevent multiple snackbars
+            // Only react to error changes to avoid duplicate snackbars
             return previous.failure != current.failure &&
                 current.hasError &&
                 !current.hasData;
           },
           listener: (context, state) {
-            // Show error snackbar if there's an error and no cached data
+            // Show error message if API failed and we have no cached data
             if (state.hasError && !state.hasData) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(

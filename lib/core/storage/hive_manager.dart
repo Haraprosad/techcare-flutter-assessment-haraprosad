@@ -2,23 +2,26 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:injectable/injectable.dart';
 import 'package:techcare_assessment_app/core/exceptions/storage_exception.dart';
 
-/// Manager for Hive database operations
-/// Provides type-safe access to Hive boxes with JSON serialization
+/// Manages Hive database operations for local data caching.
+///
+/// Hive is our NoSQL database for storing things like dashboard data
+/// that we want to cache locally. It's faster than hitting the API
+/// every time and works great for offline support.
 @lazySingleton
 class HiveManager {
-  // Box names
+  // Box names - think of these as table names
   static const String _dashboardCacheBoxName = 'dashboard_cache';
   static const String _metadataBoxName = 'cache_metadata';
 
   Box<Map>? _dashboardBox;
   Box<int>? _timestampBox;
 
-  /// Initialize Hive and open all required boxes
+  /// Opens up the Hive database when the app starts
   Future<void> initialize() async {
     try {
       await Hive.initFlutter();
 
-      // Open boxes
+      // Open our storage boxes
       _dashboardBox = await Hive.openBox<Map>(_dashboardCacheBoxName);
       _timestampBox = await Hive.openBox<int>(_metadataBoxName);
     } catch (e) {
@@ -26,7 +29,7 @@ class HiveManager {
     }
   }
 
-  /// Get the dashboard cache box
+  /// Access the box where we store dashboard data
   Box<Map> get dashboardBox {
     if (_dashboardBox == null || !_dashboardBox!.isOpen) {
       throw HiveException(
@@ -36,7 +39,7 @@ class HiveManager {
     return _dashboardBox!;
   }
 
-  /// Get the metadata box (for timestamps and other metadata)
+  /// Access the box where we store timestamps and other metadata
   Box<int> get metadataBox {
     if (_timestampBox == null || !_timestampBox!.isOpen) {
       throw HiveException('Metadata box is not initialized or has been closed');
@@ -44,7 +47,7 @@ class HiveManager {
     return _timestampBox!;
   }
 
-  /// Save data to dashboard box
+  /// Saves dashboard data to the cache
   Future<void> saveDashboardData(String key, Map<String, dynamic> data) async {
     try {
       await dashboardBox.put(key, data);
@@ -53,20 +56,20 @@ class HiveManager {
     }
   }
 
-  /// Get data from dashboard box
+  /// Gets cached dashboard data if it exists
   Map<String, dynamic>? getDashboardData(String key) {
     try {
       final data = dashboardBox.get(key);
       if (data == null) return null;
 
-      // Convert Map<dynamic, dynamic> to Map<String, dynamic>
+      // Hive returns Map<dynamic, dynamic> but we want proper types
       return Map<String, dynamic>.from(data);
     } catch (e) {
       throw HiveException('Failed to get dashboard data: $e');
     }
   }
 
-  /// Delete data from dashboard box
+  /// Removes a specific piece of cached data
   Future<void> deleteDashboardData(String key) async {
     try {
       await dashboardBox.delete(key);
@@ -75,7 +78,7 @@ class HiveManager {
     }
   }
 
-  /// Save timestamp to metadata box
+  /// Saves a timestamp - useful for knowing when we last cached something
   Future<void> saveTimestamp(String key, int timestamp) async {
     try {
       await metadataBox.put(key, timestamp);
@@ -84,7 +87,7 @@ class HiveManager {
     }
   }
 
-  /// Get timestamp from metadata box
+  /// Gets a saved timestamp
   int? getTimestamp(String key) {
     try {
       return metadataBox.get(key);
@@ -93,7 +96,7 @@ class HiveManager {
     }
   }
 
-  /// Delete timestamp from metadata box
+  /// Deletes a timestamp
   Future<void> deleteTimestamp(String key) async {
     try {
       await metadataBox.delete(key);

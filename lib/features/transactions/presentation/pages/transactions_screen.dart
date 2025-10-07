@@ -9,6 +9,15 @@ import 'package:techcare_assessment_app/features/transactions/presentation/widge
 import 'package:techcare_assessment_app/features/transactions/presentation/widgets/transaction_filter_bottom_sheet.dart';
 import 'package:techcare_assessment_app/core/widgets/offline_indicator_banner.dart';
 
+/// The main transactions screen - shows searchable, filterable list of transactions
+///
+/// Features:
+/// - Search bar with debouncing
+/// - Filter chips for quick access to filter options
+/// - Infinite scroll loading
+/// - Pull to refresh
+/// - Empty state when no transactions
+/// - Offline indicator
 class TransactionsScreen extends StatelessWidget {
   const TransactionsScreen({super.key});
 
@@ -33,7 +42,8 @@ class _TransactionsScreenBodyState extends State<_TransactionsScreenBody> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-    // Add the initial load event here instead of in BlocProvider.create
+
+    // Load first page of transactions after the widget is built
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         context.read<TransactionBloc>().add(
@@ -49,12 +59,14 @@ class _TransactionsScreenBodyState extends State<_TransactionsScreenBody> {
     super.dispose();
   }
 
+  /// Triggers pagination when user scrolls near the bottom (90% down)
   void _onScroll() {
     if (_isBottom) {
       context.read<TransactionBloc>().add(const LoadMoreTransactionsEvent());
     }
   }
 
+  /// Checks if user has scrolled to 90% of the list (trigger point for loading more)
   bool get _isBottom {
     if (!_scrollController.hasClients) return false;
     final maxScroll = _scrollController.position.maxScrollExtent;
@@ -62,8 +74,10 @@ class _TransactionsScreenBodyState extends State<_TransactionsScreenBody> {
     return currentScroll >= (maxScroll * 0.9);
   }
 
+  /// Handles pull-to-refresh gesture
   Future<void> _onRefresh() async {
     context.read<TransactionBloc>().add(const RefreshTransactionsEvent());
+    // Small delay to ensure the UI updates
     await Future.delayed(const Duration(milliseconds: 500));
   }
 

@@ -14,20 +14,25 @@ import '../main.dart';
 import 'env_config.dart';
 import 'environment.dart';
 
+/// The main app initialization flow - sets up everything before the app runs
+///
+/// This handles:
+/// - Loading environment variables (.env files)
+/// - Setting up dependency injection
+/// - Initializing local storage (Hive)
+/// - Configuring error handling
+/// - Starting the app
 Future<void> initializeApp(Env env) async {
-  // Set up zone-based error handling to catch unhandled async errors
+  // Wrap everything in a zone to catch async errors that escape normal handling
   await runZonedGuarded(
     () async {
-      // Initialize Flutter framework bindings
-      // This must be called before using any Flutter services
+      // Flutter needs this before we can use any platform services
       WidgetsFlutterBinding.ensureInitialized();
 
-      // Load environment-specific configuration from .env file
-      // This populates dotenv.env with key-value pairs from the specified file
+      // Load the .env file for this environment (dev/staging/prod)
       await dotenv.load(fileName: env.envFileName);
 
-      // Configure the global environment configuration singleton
-      // This makes environment settings available throughout the app
+      // Set up the global config singleton with values from .env
       EnvConfig.instantiate(
         appName: EnvConfig.createAppName(StringConstants.appName, env),
         baseUrl: dotenv.env[EnvConstants.envKeyBaseUrl]!,
@@ -35,37 +40,32 @@ Future<void> initializeApp(Env env) async {
         env: env,
       );
 
-      // Initialize dependency injection container
-      // Sets up all services, repositories, BLoCs, and other dependencies
+      // Initialize dependency injection - registers all services, repos, BLoCs
       await configureDependencies();
 
-      // Initialize Hive storage
-      // Must be done after dependency injection is configured
+      // Set up Hive for local data storage
       AppLogger.i(message: '🗄️ Initializing Hive storage...');
       final hiveManager = sl<HiveManager>();
       await hiveManager.initialize();
       AppLogger.i(message: '✅ Hive storage initialized successfully');
 
-      // Configure BLoC observer for state management monitoring
-      // Provides logging and debugging capabilities for BLoC events and states
+      // Set up BLoC observer to log state changes (helpful for debugging)
       Bloc.observer = AppBlocObserver();
 
-      // Launch the main application widget tree
+      // Finally, launch the app!
       runApp(const MyApp());
 
-      //************Device Preview Integration (Optional)**************** */
-      // Uncomment the following code to enable DevicePreview for responsive design testing
-      // This is useful during development to test the app on different screen sizes
+      //************Device Preview (Uncomment to test on multiple screen sizes)***
+      // Useful for testing responsive layouts during development
       //
       // runApp(DevicePreview(
-      //   enabled: !kReleaseMode, // Only enable in debug mode
-      //   builder: (context) => MyApp(), // Wrap your app
+      //   enabled: !kReleaseMode,
+      //   builder: (context) => const MyApp(),
       // ));
-      //******************************************************************** */
+      //***************************************************************************
     },
     (exception, stackTrace) async {
-      // Handle unhandled asynchronous errors within the guarded zone
-      // This catches errors that occur outside of Flutter's error handling
+      // Catch any unhandled async errors that slip through
       AppLogger.f(
         message: "runZonedGuarded caught error",
         error: exception,
@@ -74,13 +74,12 @@ Future<void> initializeApp(Env env) async {
     },
   );
 
-  // Configure Flutter framework error handler
-  // This handles errors that occur in the widget tree, rendering, or framework
+  // Set up Flutter's error handler for widget/rendering errors
   FlutterError.onError = (FlutterErrorDetails details) {
-    // Ensure the error is displayed in the console/logs
+    // Show the error in the console
     FlutterError.presentError(details);
 
-    // Log the error using our custom logging system
+    // Log it for debugging
     AppLogger.f(
       message: "Flutter error: ${details.exception}",
       error: details.exception,
@@ -88,22 +87,18 @@ Future<void> initializeApp(Env env) async {
     );
   };
 
-  // Configure platform/OS error handler
-  // This handles errors from the native platform (iOS/Android)
+  // Handle errors from the native platform (iOS/Android)
   PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
-    // Log platform errors for debugging
     AppLogger.e(
       message: "Platform error: $error",
       error: error,
       stackTrace: stack,
     );
 
-    // Return true to indicate the error was handled
-    return true;
+    return true; // Indicates we handled the error
   };
 
-  // Configure custom error widget builder
-  // Replaces Flutter's default red error screen with a user-friendly alternative
+  // Replace Flutter's ugly red error screen with a nicer one
   ErrorWidget.builder = (FlutterErrorDetails details) {
     return const FlutterErrorScreen();
   };

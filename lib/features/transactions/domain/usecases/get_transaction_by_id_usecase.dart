@@ -3,7 +3,7 @@ import 'package:techcare_assessment_app/core/network/models/api_result.dart';
 import 'package:techcare_assessment_app/features/transactions/domain/entities/transaction.dart';
 import 'package:techcare_assessment_app/features/transactions/domain/repositories/transaction_repository.dart';
 
-/// Use case for fetching a single transaction by ID
+/// Fetches a single transaction by its ID (for viewing details or editing)
 @injectable
 class GetTransactionByIdUseCase {
   final TransactionRepository _repository;

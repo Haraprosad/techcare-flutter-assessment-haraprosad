@@ -3,7 +3,7 @@ import 'package:techcare_assessment_app/core/network/models/api_result.dart';
 import 'package:techcare_assessment_app/features/transactions/domain/entities/transaction.dart';
 import 'package:techcare_assessment_app/features/transactions/domain/repositories/transaction_repository.dart';
 
-/// Use case for creating a new transaction
+/// Creates a new transaction and saves it to the backend
 @injectable
 class CreateTransactionUseCase {
   final TransactionRepository _repository;

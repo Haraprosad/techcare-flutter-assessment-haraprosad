@@ -5,13 +5,13 @@ import 'package:injectable/injectable.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:techcare_assessment_app/core/logger/app_logger.dart';
 
-/// Enhanced ConnectionManager with reactive stream-based connectivity monitoring.
+/// Monitors internet connectivity and provides instant connection status.
 ///
-/// Instead of checking connectivity before each request (slow),
-/// this manager monitors connectivity in the background and provides
-/// instant access to cached connectivity state (fast).
+/// Instead of checking connectivity before every request (which is slow),
+/// this runs in the background and keeps track of connection state. You get
+/// instant access to whether you're online or not - no waiting!
 ///
-/// Performance: 0ms overhead vs 200-500ms per request check!
+/// Performance win: 0ms vs 200-500ms per request if we checked every time
 @lazySingleton
 class ConnectionManager {
   static final ConnectionManager _instance = ConnectionManager._internal();
@@ -22,24 +22,26 @@ class ConnectionManager {
       InternetConnectionChecker.instance;
   final Connectivity _connectivity = Connectivity();
 
-  // Stream controller for broadcasting connectivity changes
+  // Broadcasts connection changes to anyone listening
   final _connectivityController = StreamController<bool>.broadcast();
 
-  // Cached connectivity state for instant access (no async needed!)
+  // Cached state - this is what makes lookups instant
   bool _isConnected = true;
 
-  // Stream subscriptions
+  // Keep references so we can cancel these later
   StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
   StreamSubscription<InternetConnectionStatus>? _connectionStatusSubscription;
 
-  /// Get connectivity status stream (reactive updates)
+  /// Subscribe to get notified whenever connection status changes
   Stream<bool> get connectivityStream => _connectivityController.stream;
 
-  /// Get current connectivity status (instant access, no await!)
+  /// Get current status instantly - no async needed!
   bool get isConnected => _isConnected;
 
-  /// Check internet connection (legacy method for backward compatibility)
-  /// Note: For better performance, use `isConnected` getter instead
+  /// Old way to check connection - kept for backwards compatibility.
+  ///
+  /// Note: This is slower since it checks every time. Better to use
+  /// the `isConnected` getter which returns the cached state instantly.
   Future<bool> checkInternetConnection() async {
     var isDeviceConnected = false;
     final connectivityResult = await _connectivity.checkConnectivity();
@@ -53,12 +55,11 @@ class ConnectionManager {
     return isDeviceConnected;
   }
 
-  /// Start monitoring connectivity in background
-  /// This should be called once when app starts
+  /// Starts background monitoring - call this once when app launches
   void startMonitoring() {
     AppLogger.i(message: '🌐 Starting connectivity monitoring...');
 
-    // Listen to connectivity changes (WiFi, Mobile, None)
+    // Watch for network type changes (WiFi -> Mobile, etc)
     _connectivitySubscription = _connectivity.onConnectivityChanged.listen((
       results,
     ) {
@@ -66,7 +67,7 @@ class ConnectionManager {
       _checkAndUpdateConnectionStatus();
     });
 
-    // Listen to internet connection status changes
+    // Watch for actual internet reachability changes
     _connectionStatusSubscription = _connectionChecker.onStatusChange.listen((
       status,
     ) {
@@ -74,7 +75,7 @@ class ConnectionManager {
       _updateConnectionStatus(isConnected);
     });
 
-    // Initial check
+    // Check what the status is right now
     _checkAndUpdateConnectionStatus();
   }
 

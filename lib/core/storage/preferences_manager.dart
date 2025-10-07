@@ -3,13 +3,17 @@ import 'package:techcare_assessment_app/core/storage/storage_keys.dart';
 import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// Manages SharedPreferences for non-sensitive app settings.
+///
+/// Use this for things like theme preferences, language settings, etc.
+/// Don't put sensitive data here - use SecureStorageManager for that.
 @lazySingleton
 class PreferencesManager {
   final SharedPreferences _prefs;
 
   PreferencesManager(this._prefs);
 
-  // Theme preferences
+  // Theme settings
   Future<void> setDarkMode(bool isDark) async {
     try {
       await _prefs.setBool(StorageKeys.isDarkMode, isDark);
@@ -22,7 +26,7 @@ class PreferencesManager {
     return _prefs.getBool(StorageKeys.isDarkMode) ?? false;
   }
 
-  // App preferences
+  // App language
   Future<void> setLanguage(String languageCode) async {
     try {
       await _prefs.setString(StorageKeys.language, languageCode);
@@ -35,7 +39,7 @@ class PreferencesManager {
     return _prefs.getString(StorageKeys.language) ?? 'en';
   }
 
-  // Authentication state methods
+  // Auth state - whether user is logged in
   Future<void> setIsAuthenticated(bool isAuthenticated) async {
     try {
       await _prefs.setBool(StorageKeys.isAuthenticated, isAuthenticated);
@@ -48,7 +52,7 @@ class PreferencesManager {
     return _prefs.getBool(StorageKeys.isAuthenticated) ?? false;
   }
 
-  // User role methods
+  // User role (admin, user, etc)
   Future<void> setUserRole(String role) async {
     try {
       await _prefs.setString(StorageKeys.userRole, role);
@@ -61,7 +65,7 @@ class PreferencesManager {
     return _prefs.getString(StorageKeys.userRole);
   }
 
-  // User info methods
+  // Basic user info
   Future<void> setUserId(String userId) async {
     try {
       await _prefs.setString(StorageKeys.userId, userId);
@@ -86,7 +90,6 @@ class PreferencesManager {
     return _prefs.getString(StorageKeys.userEmail);
   }
 
-  // User phone methods
   Future<void> setUserPhone(String phone) async {
     try {
       await _prefs.setString(StorageKeys.userPhone, phone);

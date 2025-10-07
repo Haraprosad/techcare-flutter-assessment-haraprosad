@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 
-/// Snackbar that shows when optimistic update fails with retry option
+/// Snackbars for showing retry options when optimistic updates fail.
 ///
-/// Features:
-/// - Shows error message
-/// - Provides retry button
-/// - Auto-dismisses after timeout
-/// - Undo option for reversible operations
+/// When you optimistically update the UI but the API call fails,
+/// use these to let users retry. They auto-dismiss and look consistent.
 class OptimisticUpdateRetrySnackbar {
-  /// Show error snackbar with retry option
+  /// Shows a red error snackbar with a retry button
   static void showRetrySnackbar({
     required BuildContext context,
     required String message,
@@ -39,7 +36,7 @@ class OptimisticUpdateRetrySnackbar {
     );
   }
 
-  /// Show success snackbar for confirmed operations
+  /// Shows a green success snackbar, optionally with undo button
   static void showSuccessSnackbar({
     required BuildContext context,
     required String message,

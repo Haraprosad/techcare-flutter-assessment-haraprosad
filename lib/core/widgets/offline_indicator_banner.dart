@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:techcare_assessment_app/core/network/cubit/connectivity_cubit.dart';
 
-/// Offline indicator banner that appears at the top of the screen when offline.
+/// Red banner that shows up when you lose internet connection.
 ///
-/// Features:
-/// - Auto-shows when connection is lost
-/// - Auto-hides when connection is restored
-/// - Tap to manually retry connection check
-/// - Smooth slide animation
+/// Automatically appears when offline and disappears when back online.
+/// Users can tap it to manually check if connection is back. Nice smooth
+/// slide animation so it doesn't feel jarring.
 class OfflineIndicatorBanner extends StatelessWidget {
   const OfflineIndicatorBanner({super.key});
 
@@ -33,7 +31,7 @@ class OfflineIndicatorBanner extends StatelessWidget {
         bottom: false,
         child: InkWell(
           onTap: () {
-            // Retry connection check
+            // Let user manually retry the connection check
             context.read<ConnectivityCubit>().refresh();
           },
           child: Container(

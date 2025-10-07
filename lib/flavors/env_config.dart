@@ -1,81 +1,67 @@
 import 'environment.dart';
 
-/// #Environment Configuration Management
+/// Manages environment-specific configuration (dev, staging, production)
+///
+/// This is a singleton that holds API URLs, app names, and other
+/// environment-specific settings. You must call `EnvConfig.instantiate()`
+/// before accessing any of its properties.
 
-/// Exception thrown when environment configuration validation fails.
+/// Gets thrown when something goes wrong with environment setup
 class EnvConfigException implements Exception {
-  /// The error message describing what went wrong.
   final String message;
 
-  /// Creates a new environment configuration exception.
   const EnvConfigException(this.message);
 
   @override
   String toString() => 'EnvConfigException: $message';
 }
 
-/// Singleton class for managing environment-specific application configuration.
+/// Singleton that holds all environment-specific configuration
+///
+/// Usage:
+/// 1. Call `EnvConfig.instantiate()` once at app startup
+/// 2. Access config anywhere via `EnvConfig.instance.baseUrl`, etc.
 class EnvConfig {
-  /// The display name of the application.
-
   late final String _appName;
-
-  /// The base URL for API endpoints.
-
   late final String _baseUrl;
-
   late final String _imageBaseUrl;
-
-  /// The current application environment.
   late final Env _env;
 
-  /// Private constructor for singleton pattern.
   EnvConfig._internal();
 
-  /// The singleton instance of [EnvConfig].
   static final EnvConfig instance = EnvConfig._internal();
 
-  /// Lock flag to prevent multiple initializations.
+  /// Prevents re-initialization once config is set
   bool _lock = false;
 
-  /// Gets the application name.
-  ///
-  /// Throws [StateError] if accessed before initialization.
+  /// The app name (includes environment suffix like "MyApp Development")
   String get appName {
     _validateInitialized();
     return _appName;
   }
 
-  /// Gets the base URL for API endpoints.
-  ///
-  /// Throws [StateError] if accessed before initialization.
+  /// The API base URL (changes per environment)
   String get baseUrl {
     _validateInitialized();
     return _baseUrl;
   }
 
+  /// Base URL for loading images from the backend
   String get imageBaseUrl {
     _validateInitialized();
     return _imageBaseUrl;
   }
 
-  /// Gets the current environment.
-  ///
-  /// Throws [StateError] if accessed before initialization.
+  /// Current environment (dev, staging, or production)
   Env get env {
     _validateInitialized();
     return _env;
   }
 
-  /// Gets whether the configuration has been initialized.
-  ///
-  /// This is useful for checking initialization status without
-  /// throwing exceptions.
+  /// Check if config has been initialized without throwing an error
   bool get isInitialized => _lock;
 
-  /// Validates that the configuration has been initialized.
-  ///
-  /// Throws [StateError] if not initialized.
+  /// Makes sure config is initialized before accessing properties
   void _validateInitialized() {
     if (!_lock) {
       throw StateError(
@@ -84,24 +70,21 @@ class EnvConfig {
     }
   }
 
-  /// Validates the provided configuration parameters.
-  ///
-  /// Throws [EnvConfigException] if any parameter is invalid.
+  /// Checks that all required config values are valid
   static void _validateParameters({
     required String appName,
     required String baseUrl,
     required Env env,
   }) {
-    // Validate app name
     if (appName.trim().isEmpty) {
       throw const EnvConfigException('App name cannot be empty');
     }
 
-    // Validate base URL format
     if (baseUrl.trim().isEmpty) {
       throw const EnvConfigException('Base URL cannot be empty');
     }
 
+    // Make sure the base URL is actually a valid URL
     try {
       final uri = Uri.parse(baseUrl);
       if (!uri.hasScheme ||
@@ -115,33 +98,31 @@ class EnvConfig {
     }
   }
 
-  /// Factory constructor to initialize the environment configuration.
+  /// Sets up the environment config - call this once at app startup
   factory EnvConfig.instantiate({
     required String appName,
     required String baseUrl,
     required String imageBaseUrl,
     required Env env,
   }) {
-    // Return existing instance if already locked (configured)
+    // If already configured, just return the existing instance
     if (instance._lock) return instance;
 
-    // Validate parameters before setting
+    // Validate everything before setting
     _validateParameters(appName: appName, baseUrl: baseUrl, env: env);
 
-    // Configure the singleton instance
     instance._appName = appName.trim();
     instance._baseUrl = baseUrl.trim();
     instance._imageBaseUrl = imageBaseUrl.trim();
     instance._env = env;
 
-    // Lock the configuration to prevent future modifications
+    // Lock it so it can't be changed again
     instance._lock = true;
 
     return instance;
   }
 
-  /// Creates an app name based on the environment.
-
+  /// Adds environment suffix to the app name (e.g., "MyApp Development")
   static String createAppName(String baseName, Env environment) {
     if (baseName.trim().isEmpty) {
       throw const EnvConfigException('Base name cannot be empty');
@@ -153,11 +134,10 @@ class EnvConfig {
       case Env.STAGING:
         return '$baseName Staging';
       case Env.PRODUCTION:
-        return baseName;
+        return baseName; // Production doesn't get a suffix
     }
   }
 
-  /// Returns a string representation of the configuration.
   @override
   String toString() {
     if (!_lock) {

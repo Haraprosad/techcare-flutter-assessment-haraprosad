@@ -6,18 +6,24 @@ import 'package:techcare_assessment_app/core/network/bloc/base_bloc_state.dart';
 import 'package:techcare_assessment_app/core/network/models/api_result.dart';
 import 'package:techcare_assessment_app/core/network/error_handling/models/api_call_failure_model.dart';
 
-/// Base class for handling API calls in a BLoC, providing error and success management.
+/// Base class that simplifies API calls in BLoCs with built-in error handling.
+///
+/// Extend this instead of the regular Bloc to get automatic loading states
+/// and standardized error handling for all your API calls.
 abstract class BaseBloc<Event, State extends BaseBlocState>
     extends Bloc<Event, State> {
   BaseBloc(super.initialState);
 
-  /// Executes an API call and handles loading, success, and error states.
+  /// Makes an API call and handles all the loading/success/error states automatically.
   ///
-  /// [apiCall] The API request function to execute.
-  /// [onSuccess] Callback triggered when the request is successful.
-  /// [onError] Optional callback triggered in case of an error.
-  /// [emit] Function to update the state.
-  /// [showLoader] Whether to show a loading indicator during the request.
+  /// This takes care of showing loaders, handling errors, and calling your success
+  /// callback when everything works. You just need to focus on what happens with the data.
+  ///
+  /// [apiCall] - The actual API request you want to make
+  /// [onSuccess] - What to do when the API returns data successfully
+  /// [onError] - Optional callback if you need custom error handling
+  /// [emit] - State emitter from your event handler
+  /// [showLoader] - Set to false if you don't want to show loading spinner
   @protected
   Future<void> handleApiCall<T>({
     required Future<ApiResult<T>> Function() apiCall,
@@ -26,20 +32,18 @@ abstract class BaseBloc<Event, State extends BaseBlocState>
     required Emitter<State> emit,
     bool showLoader = true,
   }) async {
-    // Show loading state if needed
+    // Turn on the loading spinner if needed
     if (showLoader) {
       emit(state.copyWith(isLoading: true, failure: null) as State);
     }
 
-    // Perform the API call
+    // Actually make the API call
     final result = await apiCall();
 
-    // Handle success response
+    // Check what we got back and handle it
     if (result is ApiSuccess<T>) {
       onSuccess(result.data);
-    }
-    // Handle error response
-    else if (result is ApiFailure<T>) {
+    } else if (result is ApiFailure<T>) {
       onError?.call(result.failure);
       emit(state.copyWith(isLoading: false, failure: result.failure) as State);
     }

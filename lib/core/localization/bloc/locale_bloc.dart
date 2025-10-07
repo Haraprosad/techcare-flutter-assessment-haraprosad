@@ -11,6 +11,10 @@ import 'package:injectable/injectable.dart';
 part 'locale_event.dart';
 part 'locale_state.dart';
 
+/// Handles language/locale switching throughout the app.
+///
+/// Manages which language the app displays and persists the user's
+/// language preference so it's remembered between app sessions.
 @singleton
 class LocaleBloc extends Bloc<LocaleEvent, LocaleState> {
   LocaleBloc(this._storage)
@@ -21,29 +25,30 @@ class LocaleBloc extends Bloc<LocaleEvent, LocaleState> {
 
   final AppStorage _storage;
 
+  /// Changes the app's display language and saves the preference
   void _onChangeLocale(
     ChangeLocaleEvent event,
     Emitter<LocaleState> emit,
   ) async {
     try {
-      // Don't update if the locale is the same
+      // Skip if user selected the same language we're already using
       if (event.locale == state.locale) {
         return;
       }
 
-      // Validate the locale before emitting it
+      // Make sure the requested language is actually supported
       if (AppLocalizations.supportedLocales.contains(event.locale)) {
         await _storage.preferences.setLanguage(event.locale.languageCode);
         emit(LocaleState(event.locale));
       } else {
-        // Invalid locale, fallback to English
+        // Requested language isn't supported, fall back to English
         await _storage.preferences.setLanguage(
           LocaleConstants.english.languageCode,
         );
         emit(const LocaleState(LocaleConstants.english));
       }
     } catch (e) {
-      // Handle any potential errors by falling back to English
+      // Something went wrong saving the preference, just use English
       await _storage.preferences.setLanguage(
         LocaleConstants.english.languageCode,
       );
@@ -51,6 +56,7 @@ class LocaleBloc extends Bloc<LocaleEvent, LocaleState> {
     }
   }
 
+  /// Loads the saved language preference when the app starts
   Future<void> _onInitializeLocale(
     InitializeLocale event,
     Emitter<LocaleState> emit,

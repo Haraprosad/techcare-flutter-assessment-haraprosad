@@ -20,17 +20,15 @@ import 'package:techcare_assessment_app/features/transactions/domain/usecases/up
 part 'transaction_event.dart';
 part 'transaction_state.dart';
 
-/// BLoC for managing Transaction screen state and business logic
+/// Manages the transactions list screen - viewing, filtering, and managing transactions.
 ///
-/// Features:
-/// - Load transactions with pagination (20 items per page)
-/// - Search transactions with 300ms debouncing
-/// - Filter transactions by date, category, amount, and type
-/// - Infinite scroll support
-/// - Pull-to-refresh functionality
-/// - Create, update, and delete transactions
-/// - Optimistic UI updates
-/// - Cache support with offline fallback
+/// Handles:
+/// - Paginated transaction loading (20 per page, infinite scroll)
+/// - Search with 300ms debounce (doesn't hammer the API while typing)
+/// - Filtering by date, category, amount, type
+/// - Create/update/delete transactions with optimistic updates
+/// - Pull-to-refresh
+/// - Works offline with cached data
 @lazySingleton
 class TransactionBloc extends BaseBloc<TransactionEvent, TransactionState> {
   final GetTransactionsUseCase _getTransactionsUseCase;
@@ -64,19 +62,19 @@ class TransactionBloc extends BaseBloc<TransactionEvent, TransactionState> {
     on<ClearErrorEvent>(_onClearError);
   }
 
-  /// Debounce transformer for search
+  /// Debounces search events so we don't spam the API
   EventTransformer<T> debounce<T>(Duration duration) {
     return (events, mapper) => events.debounce(duration).switchMap(mapper);
   }
 
-  /// Load transactions (initial load or with new filters)
+  /// Loads a page of transactions, applying any active filters
   Future<void> _onLoadTransactions(
     LoadTransactionsEvent event,
     Emitter<TransactionState> emit,
   ) async {
     AppLogger.i(message: 'Loading transactions (page: ${event.page})...');
 
-    // Merge search query into filters if present
+    // If there's a search query, add it to the filters
     final filters = state.searchQuery.isNotEmpty
         ? (event.filters ?? state.filters).copyWith(
             searchQuery: state.searchQuery,
@@ -119,11 +117,12 @@ class TransactionBloc extends BaseBloc<TransactionEvent, TransactionState> {
     );
   }
 
-  /// Load more transactions (pagination)
+  /// Loads the next page of transactions for infinite scrolling
   Future<void> _onLoadMoreTransactions(
     LoadMoreTransactionsEvent event,
     Emitter<TransactionState> emit,
   ) async {
+    // Don't load if there's nothing more or already loading
     if (!state.hasMore || state.isLoadingMore || state.isLoading) {
       AppLogger.d(
         message:
@@ -177,7 +176,7 @@ class TransactionBloc extends BaseBloc<TransactionEvent, TransactionState> {
     );
   }
 
-  /// Refresh transactions (pull-to-refresh)
+  /// Refreshes the transaction list from the network (pull-to-refresh action)
   Future<void> _onRefreshTransactions(
     RefreshTransactionsEvent event,
     Emitter<TransactionState> emit,
@@ -220,7 +219,7 @@ class TransactionBloc extends BaseBloc<TransactionEvent, TransactionState> {
     );
   }
 
-  /// Search transactions with debouncing
+  /// Searches transactions with a 300ms debounce to prevent excessive API calls
   Future<void> _onSearchTransactions(
     SearchTransactionsEvent event,
     Emitter<TransactionState> emit,
@@ -229,11 +228,11 @@ class TransactionBloc extends BaseBloc<TransactionEvent, TransactionState> {
 
     emit(state.copyWith(searchQuery: event.query));
 
-    // Trigger new load with search query
+    // Reload from page 1 with the search query
     add(const LoadTransactionsEvent(page: 1));
   }
 
-  /// Apply filters to transactions
+  /// Applies filters (date range, category, amount range, type) to the transaction list
   Future<void> _onApplyFilters(
     ApplyFiltersEvent event,
     Emitter<TransactionState> emit,
@@ -245,11 +244,11 @@ class TransactionBloc extends BaseBloc<TransactionEvent, TransactionState> {
 
     emit(state.copyWith(filters: event.filters));
 
-    // Trigger new load with filters
+    // Reload from page 1 with the new filters
     add(const LoadTransactionsEvent(page: 1));
   }
 
-  /// Clear all filters
+  /// Clears all active filters and search query
   Future<void> _onClearFilters(
     ClearFiltersEvent event,
     Emitter<TransactionState> emit,
@@ -258,11 +257,11 @@ class TransactionBloc extends BaseBloc<TransactionEvent, TransactionState> {
 
     emit(state.copyWith(filters: const TransactionFilters(), searchQuery: ''));
 
-    // Trigger new load without filters
+    // Reload from page 1 with no filters
     add(const LoadTransactionsEvent(page: 1));
   }
 
-  /// Add a new transaction
+  /// Creates a new transaction and optimistically adds it to the list
   Future<void> _onAddTransaction(
     AddTransactionEvent event,
     Emitter<TransactionState> emit,
@@ -303,7 +302,7 @@ class TransactionBloc extends BaseBloc<TransactionEvent, TransactionState> {
     );
   }
 
-  /// Update an existing transaction
+  /// Updates an existing transaction and refreshes the list
   Future<void> _onUpdateTransaction(
     UpdateTransactionEvent event,
     Emitter<TransactionState> emit,
@@ -324,7 +323,7 @@ class TransactionBloc extends BaseBloc<TransactionEvent, TransactionState> {
           ),
         );
 
-        // Refresh the transaction list
+        // Refresh to get the updated data
         add(const RefreshTransactionsEvent());
       },
       onError: (failure) {
@@ -344,7 +343,7 @@ class TransactionBloc extends BaseBloc<TransactionEvent, TransactionState> {
     );
   }
 
-  /// Delete a transaction
+  /// Deletes a transaction (with confirmation from the UI)
   Future<void> _onDeleteTransaction(
     DeleteTransactionEvent event,
     Emitter<TransactionState> emit,
@@ -385,7 +384,7 @@ class TransactionBloc extends BaseBloc<TransactionEvent, TransactionState> {
     );
   }
 
-  /// Load a single transaction by ID
+  /// Fetches a single transaction by ID (for viewing transaction details)
   Future<void> _onLoadTransactionById(
     LoadTransactionByIdEvent event,
     Emitter<TransactionState> emit,
@@ -411,7 +410,7 @@ class TransactionBloc extends BaseBloc<TransactionEvent, TransactionState> {
     );
   }
 
-  /// Clear error state
+  /// Clears any error state so the UI can dismiss error messages
   void _onClearError(ClearErrorEvent event, Emitter<TransactionState> emit) {
     emit(state.copyWith(failure: null, clearFailure: true));
   }

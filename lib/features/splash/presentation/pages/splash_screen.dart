@@ -3,6 +3,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:techcare_assessment_app/core/router/route_names.dart';
 
+/// The app's splash screen - shown on launch with a fade-in animation
+///
+/// Displays the app logo for 2 seconds, then navigates to the dashboard.
+/// Uses a simple opacity animation for a smooth fade-in effect.
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -18,6 +22,8 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
+
+    // Set up the fade-in animation (1.5 seconds)
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
@@ -30,12 +36,12 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller.forward();
 
-    // Navigate to dashboard after splash delay
+    // Start the navigation timer
     _initializeSplash();
   }
 
+  /// Waits 2 seconds then navigates to the dashboard
   void _initializeSplash() async {
-    // Wait for minimum splash duration
     await Future.delayed(const Duration(seconds: 2));
 
     if (mounted) {
@@ -64,7 +70,7 @@ class _SplashScreenState extends State<SplashScreen>
                 opacity: _opacityAnimation.value,
                 child: FlutterLogo(
                   size: 150.w,
-                ), // Replace this with your app logo
+                ), // TODO: Replace with actual app logo
               );
             },
           ),

@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 
+/// Helper class for displaying snackbar messages throughout the app.
+///
+/// Provides pre-styled snackbars for common scenarios like success messages,
+/// errors, and general info. Keeps the UI consistent without repeating code.
 class SnackbarUtils {
+  /// Shows a green success message - good for confirming actions worked
   static void showSuccess(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -20,6 +25,7 @@ class SnackbarUtils {
     );
   }
 
+  /// Shows a red error message - tells users when something went wrong
   static void showError(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -39,6 +45,7 @@ class SnackbarUtils {
     );
   }
 
+  /// Shows a blue info message - for general notifications or tips
   static void showInfo(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

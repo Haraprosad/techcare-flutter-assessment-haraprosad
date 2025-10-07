@@ -16,15 +16,15 @@ import 'package:techcare_assessment_app/features/transactions/domain/entities/tr
 part 'dashboard_event.dart';
 part 'dashboard_state.dart';
 
-/// BLoC for managing Dashboard screen state and business logic
+/// Manages the dashboard screen - your financial overview at a glance.
 ///
-/// Features:
-/// - Load dashboard data with caching support
-/// - Pull-to-refresh functionality
-/// - Balance visibility toggle with animation
-/// - Category-wise transaction filtering
-/// - Offline support with cached data
-/// - Real-time notification count updates
+/// Handles:
+/// - Loading balance, spending breakdown, and recent transactions
+/// - Pull-to-refresh for fresh data
+/// - Toggling balance visibility (hide/show amounts)
+/// - Filtering transactions by category
+/// - Working offline with cached data
+/// - Notification badge updates
 @lazySingleton
 class DashboardBloc extends BaseBloc<DashboardEvent, DashboardState> {
   final GetDashboardDataUseCase _getDashboardDataUseCase;
@@ -46,7 +46,7 @@ class DashboardBloc extends BaseBloc<DashboardEvent, DashboardState> {
     on<ClearErrorEvent>(_onClearError);
   }
 
-  /// Load dashboard data (initial load or retry)
+  /// Loads dashboard data from the server
   Future<void> _onLoadDashboardData(
     LoadDashboardDataEvent event,
     Emitter<DashboardState> emit,
@@ -71,7 +71,7 @@ class DashboardBloc extends BaseBloc<DashboardEvent, DashboardState> {
           message:
               'Failed to load dashboard data: ${failure.translatedMessage}',
         );
-        // Try to load cached data as fallback
+        // API call failed, fall back to cached data
         add(const LoadCachedDataEvent());
       },
       emit: emit,
@@ -79,14 +79,17 @@ class DashboardBloc extends BaseBloc<DashboardEvent, DashboardState> {
     );
   }
 
-  /// Load dashboard data only if needed (cache is stale or empty)
+  /// Smart loading - only hits the API if data is stale.
+  ///
+  /// Checks if we have data from the last 5 minutes. If yes, we're good.
+  /// Otherwise, fetches fresh data. Saves bandwidth and makes the app faster.
   Future<void> _onLoadDashboardDataIfNeeded(
     LoadDashboardDataIfNeededEvent event,
     Emitter<DashboardState> emit,
   ) async {
     AppLogger.i(message: 'Checking if dashboard data needs refresh...');
 
-    // If we have fresh data (less than 5 minutes old), don't reload
+    // Data is recent enough? Skip the reload
     if (state.hasData && !state.needsRefresh) {
       AppLogger.i(
         message:
@@ -95,7 +98,7 @@ class DashboardBloc extends BaseBloc<DashboardEvent, DashboardState> {
       return;
     }
 
-    // If cache is stale or empty, load data
+    // Time to get fresh data
     AppLogger.i(message: 'Dashboard data is stale or empty, loading...');
     add(const LoadDashboardDataEvent());
   }

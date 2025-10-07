@@ -12,6 +12,11 @@ import 'package:go_router/go_router.dart';
 
 import '../di/injection.dart';
 
+/// Main scaffold wrapper that includes the bottom navigation bar.
+///
+/// Wraps child screens and conditionally shows/hides the bottom nav
+/// based on the navigation state. Handles tab selection and navigation
+/// between the main app sections.
 class ScaffoldWithBottomNav extends StatelessWidget {
   final Widget child;
 
@@ -37,7 +42,11 @@ class ScaffoldWithBottomNav extends StatelessWidget {
                     showUnselectedLabels: true,
                     items: [
                       BottomNavigationBarItem(
-                        icon: Icon(Icons.dashboard, color: Colors.grey, size: 24.w),
+                        icon: Icon(
+                          Icons.dashboard,
+                          color: Colors.grey,
+                          size: 24.w,
+                        ),
                         activeIcon: Icon(
                           Icons.dashboard,
                           size: 24.w,
@@ -46,7 +55,11 @@ class ScaffoldWithBottomNav extends StatelessWidget {
                         label: 'Dashboard',
                       ),
                       BottomNavigationBarItem(
-                        icon: Icon(Icons.receipt_long, color: Colors.grey, size: 24.w),
+                        icon: Icon(
+                          Icons.receipt_long,
+                          color: Colors.grey,
+                          size: 24.w,
+                        ),
                         activeIcon: Icon(
                           Icons.receipt_long,
                           size: 24.w,
@@ -55,7 +68,11 @@ class ScaffoldWithBottomNav extends StatelessWidget {
                         label: 'Transactions',
                       ),
                       BottomNavigationBarItem(
-                        icon: Icon(Icons.analytics, color: Colors.grey, size: 24.w),
+                        icon: Icon(
+                          Icons.analytics,
+                          color: Colors.grey,
+                          size: 24.w,
+                        ),
                         activeIcon: Icon(
                           Icons.analytics,
                           size: 24.w,
@@ -65,20 +82,24 @@ class ScaffoldWithBottomNav extends StatelessWidget {
                       ),
                     ],
                   )
-                : null, // Set to null to hide bottom nav
+                : null, // Hide the nav bar when state says so
           );
         },
       ),
     );
   }
 
+  /// Figures out which tab should be highlighted based on current route
   int _calculateSelectedIndex(BuildContext context) {
-    final location = GoRouter.of(context).routerDelegate.currentConfiguration.fullPath;
+    final location = GoRouter.of(
+      context,
+    ).routerDelegate.currentConfiguration.fullPath;
     if (location.startsWith(RoutePaths.transactions)) return 1;
     if (location.startsWith(RoutePaths.analytics)) return 2;
-    return 0;
+    return 0; // Default to dashboard
   }
 
+  /// Handles tab taps - updates state and navigates to the selected screen
   void _onItemTapped(int index, BuildContext context) {
     context.read<NavigationBloc>().add(NavigationTabChanged(index));
 
@@ -95,4 +116,3 @@ class ScaffoldWithBottomNav extends StatelessWidget {
     }
   }
 }
-  

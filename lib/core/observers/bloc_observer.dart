@@ -1,6 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../logger/app_logger.dart';
 
+/// Global observer that logs all BLoC activity for debugging.
+///
+/// Hooks into every BLoC in the app to log when they're created,
+/// when events are triggered, state changes, etc. Super helpful
+/// for understanding what's happening and debugging state issues.
 class AppBlocObserver extends BlocObserver {
   @override
   void onCreate(BlocBase bloc) {
@@ -11,14 +16,17 @@ class AppBlocObserver extends BlocObserver {
   @override
   void onEvent(Bloc bloc, Object? event) {
     super.onEvent(bloc, event);
-    AppLogger.d(message: 'BlocObserver: onEvent -- ${bloc.runtimeType}, $event');
+    AppLogger.d(
+      message: 'BlocObserver: onEvent -- ${bloc.runtimeType}, $event',
+    );
   }
 
   @override
   void onChange(BlocBase bloc, Change change) {
     super.onChange(bloc, change);
     AppLogger.d(
-      message: '''BlocObserver: onChange -- ${bloc.runtimeType}
+      message:
+          '''BlocObserver: onChange -- ${bloc.runtimeType}
       CurrentState: ${change.currentState}
       NextState: ${change.nextState}''',
     );
@@ -28,7 +36,8 @@ class AppBlocObserver extends BlocObserver {
   void onTransition(Bloc bloc, Transition transition) {
     super.onTransition(bloc, transition);
     AppLogger.d(
-      message: '''BlocObserver: onTransition -- ${bloc.runtimeType}
+      message:
+          '''BlocObserver: onTransition -- ${bloc.runtimeType}
       Event: ${transition.event}
       CurrentState: ${transition.currentState}
       NextState: ${transition.nextState}''',

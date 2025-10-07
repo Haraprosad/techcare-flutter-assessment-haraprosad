@@ -2,28 +2,20 @@ import 'package:techcare_assessment_app/core/network/models/api_result.dart';
 import 'package:techcare_assessment_app/features/dashboard/domain/entities/balance_summary.dart';
 import 'package:techcare_assessment_app/features/dashboard/domain/entities/dashboard_data.dart';
 
-/// Repository interface for dashboard data operations
-/// Implementation will be in data layer
+/// Interface for dashboard data operations.
+///
+/// The actual implementation lives in the data layer where it handles
+/// API calls, caching, error handling, etc. This just defines what's available.
 abstract class DashboardRepository {
-  /// Fetches complete dashboard data including balance, spending, and recent transactions
-  /// Returns [ApiSuccess(DashboardData)] on success
-  /// Returns [ApiFailure(ApiCallFailureModel)] on error
+  /// Gets the full dashboard - balance, spending breakdown, recent transactions
   Future<ApiResult<DashboardData>> getDashboardData();
 
-  /// Fetches only balance summary for quick refresh
-  /// Returns [ApiSuccess(BalanceSummary)] on success
-  /// Returns [ApiFailure(ApiCallFailureModel)] on error
+  /// Quick balance check without loading everything
   Future<ApiResult<BalanceSummary>> getBalanceSummary();
 
-
-  /// Refreshes dashboard data (pull-to-refresh)
-  /// Forces fresh data fetch, bypassing cache
-  /// Returns [ApiSuccess(DashboardData)] on success
-  /// Returns [ApiFailure(ApiCallFailureModel)] on error
+  /// Pull-to-refresh - forces fresh data from server, ignores cache
   Future<ApiResult<DashboardData>> refreshDashboardData();
 
-  /// Gets cached dashboard data if available
-  /// Returns [ApiSuccess(DashboardData)] if cache exists
-  /// Returns [ApiFailure(ApiCallFailureModel)] if no cache available
+  /// Tries to load from cache - works offline
   Future<ApiResult<DashboardData>> getCachedDashboardData();
 }

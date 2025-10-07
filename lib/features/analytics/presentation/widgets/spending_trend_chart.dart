@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../domain/entities/monthly_trend.dart';
 
+/// Shows a 6-month line chart of income vs expenses.
+///
+/// Renders income (green) and expense (red) trends with smooth animations.
+/// Great for spotting spending patterns over time.
 class SpendingTrendChart extends StatefulWidget {
   final List<MonthlyTrend> trends;
 
@@ -19,6 +23,7 @@ class _SpendingTrendChartState extends State<SpendingTrendChart>
   @override
   void initState() {
     super.initState();
+    // Set up the chart animation
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1000),
@@ -29,7 +34,7 @@ class _SpendingTrendChartState extends State<SpendingTrendChart>
       curve: Curves.easeInOut,
     );
 
-    // Start animation
+    // Kick off the animation
     _animationController.forward();
   }
 
@@ -45,6 +50,7 @@ class _SpendingTrendChartState extends State<SpendingTrendChart>
       return const SizedBox.shrink();
     }
 
+    // Find the highest value to scale the chart properly
     final maxValue = widget.trends.fold<double>(
       0,
       (max, trend) =>
@@ -65,6 +71,7 @@ class _SpendingTrendChartState extends State<SpendingTrendChart>
               ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
+            // Legend showing what the colors mean
             Row(
               children: [
                 _Legend(color: Colors.green, label: 'Income'),

@@ -9,12 +9,18 @@ import '../../domain/usecases/refresh_analytics_data_usecase.dart';
 import 'analytics_event.dart';
 import 'analytics_state.dart';
 
+/// Manages analytics screen state - spending trends, category breakdowns, etc.
+///
+/// Handles loading analytics data for different time periods, caching to reduce
+/// API calls, and filtering by categories. Uses the cache-first approach so
+/// users see data instantly even when offline.
 @lazySingleton
 class AnalyticsBloc extends BaseBloc<AnalyticsEvent, AnalyticsState> {
   final GetAnalyticsDataUseCase _getAnalyticsDataUseCase;
   final GetCachedAnalyticsDataUseCase _getCachedAnalyticsDataUseCase;
   final RefreshAnalyticsDataUseCase _refreshAnalyticsDataUseCase;
 
+  // Keep track of current time period selection
   AnalyticsPeriod _currentPeriod = AnalyticsPeriod.thisMonth;
   DateTimeRange _currentDateRange = AnalyticsPeriod.thisMonth.dateRange;
 
@@ -32,6 +38,7 @@ class AnalyticsBloc extends BaseBloc<AnalyticsEvent, AnalyticsState> {
     on<LoadCachedAnalytics>(_onLoadCachedAnalytics);
   }
 
+  /// Loads analytics data from the server for the current date range
   Future<void> _onLoadAnalytics(
     LoadAnalytics event,
     Emitter<AnalyticsState> emit,
@@ -61,22 +68,25 @@ class AnalyticsBloc extends BaseBloc<AnalyticsEvent, AnalyticsState> {
         AppLogger.e(
           message: '❌ Failed to load analytics: ${failure.translatedMessage}',
         );
-        // Try to load cached data as fallback
+        // API failed, try to show cached data instead
         add(const LoadCachedAnalytics());
       },
       emit: emit,
-      showLoader: !state.hasData, // Only show loader if we don't have data yet
+      showLoader: !state.hasData, // Skip loader if we already have data showing
     );
   }
 
-  /// Load analytics data only if needed (cache is stale or empty)
+  /// Smart loading - only fetches if cache is stale or missing.
+  ///
+  /// Checks if we have recent data (less than 5 min old). If yes, skips the API call.
+  /// This saves bandwidth and makes the app feel snappier.
   Future<void> _onLoadAnalyticsIfNeeded(
     LoadAnalyticsIfNeeded event,
     Emitter<AnalyticsState> emit,
   ) async {
     AppLogger.i(message: '🔍 Checking if analytics data needs refresh...');
 
-    // If we have fresh data (less than 5 minutes old), don't reload
+    // Got fresh data already? Don't waste an API call
     if (state.hasData && !state.needsRefresh) {
       AppLogger.i(
         message:
@@ -85,11 +95,12 @@ class AnalyticsBloc extends BaseBloc<AnalyticsEvent, AnalyticsState> {
       return;
     }
 
-    // If cache is stale or empty, load data
+    // Data is old or missing, time to reload
     AppLogger.i(message: 'Analytics data is stale or empty, loading...');
     add(const LoadAnalytics());
   }
 
+  /// Updates the date range when user picks custom dates
   Future<void> _onUpdateDateRange(
     UpdateDateRange event,
     Emitter<AnalyticsState> emit,

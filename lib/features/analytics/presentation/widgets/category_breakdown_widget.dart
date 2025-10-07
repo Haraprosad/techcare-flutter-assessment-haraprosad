@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../domain/entities/category_breakdown.dart';
 
+/// Displays category spending as horizontal bars with percentages.
+///
+/// Each category shows how much was spent and what percentage of total.
+/// Bars animate in with a stagger effect for a nice visual touch.
+/// Tappable if you pass an onCategoryTap callback.
 class CategoryBreakdownWidget extends StatefulWidget {
   final List<CategoryBreakdown> categories;
   final Function(String)? onCategoryTap;
@@ -29,7 +34,7 @@ class _CategoryBreakdownWidgetState extends State<CategoryBreakdownWidget>
       duration: const Duration(milliseconds: 1000),
     );
 
-    // Start animation
+    // Start the animation when widget appears
     _animationController.forward();
   }
 
@@ -59,16 +64,16 @@ class _CategoryBreakdownWidgetState extends State<CategoryBreakdownWidget>
             const SizedBox(height: 16),
             ...List.generate(widget.categories.length, (index) {
               final category = widget.categories[index];
-              // Staggered animation: each bar starts slightly after the previous one
-              final delay = index * 0.1; // 100ms delay between each bar
+              // Each bar animates in a bit after the previous one for a wave effect
+              final delay = index * 0.1; // 100ms between each
               final animation = CurvedAnimation(
                 parent: _animationController,
                 curve: Interval(
-                  delay.clamp(0.0, 0.6), // Start time
+                  delay.clamp(0.0, 0.6), // When to start
                   (delay + 0.4).clamp(
                     0.4,
                     1.0,
-                  ), // End time (400ms duration per bar)
+                  ), // When to finish (400ms per bar)
                   curve: Curves.easeOut,
                 ),
               );

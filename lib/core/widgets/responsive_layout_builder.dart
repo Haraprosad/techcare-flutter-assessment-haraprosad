@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:techcare_assessment_app/core/theme/constants/breakpoints.dart';
 
-/// A widget that builds different layouts based on screen size
+/// Builds different layouts depending on screen size.
+///
+/// Provide a mobile layout (required) and optionally tablet/desktop versions.
+/// It picks the right one based on screen width. If you don't provide tablet
+/// or desktop layouts, it falls back to mobile.
 class ResponsiveLayoutBuilder extends StatelessWidget {
   final Widget mobile;
   final Widget? tablet;
@@ -18,18 +22,25 @@ class ResponsiveLayoutBuilder extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
+        // Pick desktop layout if screen is wide enough
         if (constraints.maxWidth >= Breakpoints.desktopMin) {
           return desktop ?? tablet ?? mobile;
-        } else if (constraints.maxWidth >= Breakpoints.tabletMin) {
+        }
+        // Pick tablet layout for medium screens
+        else if (constraints.maxWidth >= Breakpoints.tabletMin) {
           return tablet ?? mobile;
         }
+        // Default to mobile for small screens
         return mobile;
       },
     );
   }
 }
 
-/// A widget that builds different layouts based on orientation
+/// Switches layouts based on device orientation.
+///
+/// Useful when you want a different UI for landscape vs portrait.
+/// If you don't provide a landscape widget, it uses portrait for both.
 class OrientationLayoutBuilder extends StatelessWidget {
   final Widget portrait;
   final Widget? landscape;
@@ -53,7 +64,10 @@ class OrientationLayoutBuilder extends StatelessWidget {
   }
 }
 
-/// A widget that combines responsive and orientation layouts
+/// Combines screen size AND orientation for really adaptive layouts.
+///
+/// Lets you specify different widgets for mobile portrait, mobile landscape,
+/// tablet portrait, etc. Great for complex responsive designs.
 class AdaptiveLayoutBuilder extends StatelessWidget {
   final Widget mobilePortrait;
   final Widget? mobileLandscape;

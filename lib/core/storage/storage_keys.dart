@@ -1,16 +1,20 @@
+/// All the keys used for storing data locally.
+///
+/// Keeps storage keys in one place so we don't mistype them.
+/// Organized by what type of storage they're used in.
 class StorageKeys {
-  StorageKeys._(); // Private constructor
+  StorageKeys._(); // Just a namespace, not a real class
 
-  // Theme related keys
+  // Theme settings
   static const String isDarkMode = 'isDarkMode';
   static const String themeColor = 'themeColor';
 
-  // User preference keys (non-sensitive)
+  // User preferences (safe to store in SharedPreferences)
   static const String language = 'language';
   static const String notifications = 'notifications';
   static const String fontSize = 'fontSize';
 
-  // Secure storage keys (sensitive data)
+  // Sensitive data (goes in SecureStorage)
   static const String authToken = 'authToken';
   static const String refreshToken = 'refreshToken';
   static const String userId = 'userId';
@@ -23,10 +27,10 @@ class StorageKeys {
   static const String userEmail = 'userEmail';
   static const String userPhone = 'userPhone';
 
-  // Cart related keys
+  // Shopping cart stuff
   static const String cartToken = 'cartToken';
 
-  // Dashboard cache keys (for Hive)
+  // Hive cache keys for dashboard data
   static const String cachedDashboardData = 'dashboard_data';
   static const String cachedBalanceSummary = 'balance_summary';
   static const String dashboardCacheTimestamp = 'dashboard_timestamp';
