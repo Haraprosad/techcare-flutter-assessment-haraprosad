@@ -24,7 +24,7 @@ android {
         applicationId = "com.techcare.www.techcare_assessment_app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        minSdk = flutter.minSdkVersion  // Updated for connectivity_plus, flutter_secure_storage, and other packages
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
