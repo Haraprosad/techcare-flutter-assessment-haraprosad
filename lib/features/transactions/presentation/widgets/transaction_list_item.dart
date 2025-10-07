@@ -91,12 +91,18 @@ class TransactionListItem extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(
-                '${isIncome ? '+' : '-'} BDT ${NumberFormat('#,##0.00').format(transaction.amount)}',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: amountColor,
+              Hero(
+                tag: 'transaction_amount_${transaction.id}',
+                child: Material(
+                  color: Colors.transparent,
+                  child: Text(
+                    '${isIncome ? '+' : '-'} BDT ${NumberFormat('#,##0.00').format(transaction.amount)}',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: amountColor,
+                    ),
+                  ),
                 ),
               ),
               Text(

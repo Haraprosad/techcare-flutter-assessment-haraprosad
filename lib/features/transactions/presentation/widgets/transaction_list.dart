@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:techcare_assessment_app/features/transactions/domain/entities/transaction.dart';
 import 'package:techcare_assessment_app/features/transactions/presentation/bloc/transaction_bloc.dart';
-import 'package:techcare_assessment_app/features/transactions/presentation/pages/add_edit_transaction_screen.dart';
+import 'package:techcare_assessment_app/features/transactions/presentation/widgets/transaction_details_modal.dart';
 import 'package:techcare_assessment_app/features/transactions/presentation/widgets/transaction_list_item.dart';
 
 /// Transaction list with grouped date headers and infinite scroll
@@ -112,25 +112,12 @@ class TransactionList extends StatelessWidget {
   }
 
   void _onTransactionTap(BuildContext context, Transaction transaction) async {
-    final result = await showModalBottomSheet<bool>(
+    final result = await TransactionDetailsModal.show(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.95,
-        minChildSize: 0.5,
-        maxChildSize: 0.95,
-        builder: (context, scrollController) => Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).scaffoldBackgroundColor,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: AddEditTransactionScreen(transaction: transaction),
-        ),
-      ),
+      transaction: transaction,
     );
 
-    // Refresh the list if transaction was updated
+    // Refresh the list if transaction was updated or deleted
     if (result == true && onRefresh != null) {
       onRefresh!();
     }
