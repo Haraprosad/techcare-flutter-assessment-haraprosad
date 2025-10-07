@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../core/di/injection.dart';
 import '../bloc/analytics_bloc.dart';
 import '../bloc/analytics_event.dart';
 import '../bloc/analytics_state.dart';
@@ -16,10 +15,9 @@ class AnalyticsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => sl<AnalyticsBloc>()..add(const LoadAnalytics()),
-      child: const _AnalyticsView(),
-    );
+    // Trigger data load only if needed (data is stale or empty)
+    context.read<AnalyticsBloc>().add(const LoadAnalyticsIfNeeded());
+    return const _AnalyticsView();
   }
 }
 

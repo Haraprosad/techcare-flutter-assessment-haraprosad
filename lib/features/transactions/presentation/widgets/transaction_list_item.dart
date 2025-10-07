@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:techcare_assessment_app/features/transactions/domain/entities/transaction.dart';
 
-/// Individual transaction list item with swipe actions
-class TransactionListItem extends StatelessWidget {
+/// Individual transaction list item with swipe actions and animations
+class TransactionListItem extends StatefulWidget {
   final Transaction transaction;
   final VoidCallback onTap;
-  final VoidCallback? onRefresh; // Callback to refresh after edit/delete
-  final VoidCallback? onDelete; // Callback when transaction is deleted
+  final VoidCallback? onRefresh;
+  final VoidCallback? onDelete;
+  final int index; // For stagger animation
+  final bool animate; // Whether to animate on build
 
   const TransactionListItem({
     super.key,
@@ -15,107 +17,219 @@ class TransactionListItem extends StatelessWidget {
     required this.onTap,
     this.onRefresh,
     this.onDelete,
+    this.index = 0,
+    this.animate = true,
   });
 
   @override
+  State<TransactionListItem> createState() => _TransactionListItemState();
+}
+
+class _TransactionListItemState extends State<TransactionListItem>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
+
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+
+    // Start animation with stagger delay
+    if (widget.animate) {
+      Future.delayed(Duration(milliseconds: widget.index * 50), () {
+        if (mounted) {
+          _controller.forward();
+        }
+      });
+    } else {
+      _controller.value = 1.0;
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final isIncome = transaction.isIncome;
+    final isIncome = widget.transaction.isIncome;
     final amountColor = isIncome ? Colors.green.shade700 : Colors.red.shade700;
 
-    return Dismissible(
-      key: Key(transaction.id),
-      background: Container(
-        color: Colors.blue,
-        alignment: Alignment.centerLeft,
-        padding: const EdgeInsets.only(left: 20),
-        child: const Icon(Icons.edit, color: Colors.white),
-      ),
-      secondaryBackground: Container(
-        color: Colors.red,
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 20),
-        child: const Icon(Icons.delete, color: Colors.white),
-      ),
-      confirmDismiss: (direction) async {
-        if (direction == DismissDirection.endToStart) {
-          // Delete action
-          final confirmed = await _showDeleteConfirmation(context);
-          if (confirmed == true && onDelete != null) {
-            onDelete!();
-            return true;
-          }
-          return false;
-        } else {
-          // Edit action - use the onTap callback
-          onTap();
-          return false;
-        }
-      },
-      child: Card(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        child: ListTile(
-          onTap: onTap,
-          leading: CircleAvatar(
-            backgroundColor: Color(
-              int.parse(transaction.category.color.replaceFirst('#', '0xFF')),
-            ).withOpacity(0.2),
-            child: Icon(
-              _getIconData(transaction.category.icon),
-              color: Color(
-                int.parse(transaction.category.color.replaceFirst('#', '0xFF')),
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: SlideTransition(
+        position: _slideAnimation,
+        child: Dismissible(
+          key: Key(widget.transaction.id),
+          background: _buildSwipeBackground(
+            color: Colors.blue,
+            icon: Icons.edit,
+            alignment: Alignment.centerLeft,
+            padding: const EdgeInsets.only(left: 20),
+          ),
+          secondaryBackground: _buildSwipeBackground(
+            color: Colors.red,
+            icon: Icons.delete,
+            alignment: Alignment.centerRight,
+            padding: const EdgeInsets.only(right: 20),
+          ),
+          confirmDismiss: (direction) async {
+            if (direction == DismissDirection.endToStart) {
+              // Delete action
+              final confirmed = await _showDeleteConfirmation(context);
+              if (confirmed == true && widget.onDelete != null) {
+                widget.onDelete!();
+                return true;
+              }
+              return false;
+            } else {
+              // Edit action - use the onTap callback
+              widget.onTap();
+              return false;
+            }
+          },
+          // Smooth swipe animation settings
+          movementDuration: const Duration(milliseconds: 200),
+          resizeDuration: const Duration(milliseconds: 300),
+          child: Card(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            elevation: 1,
+            child: ListTile(
+              onTap: widget.onTap,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 8,
+              ),
+              leading: Hero(
+                tag: 'transaction_icon_${widget.transaction.id}',
+                child: CircleAvatar(
+                  radius: 24,
+                  backgroundColor: Color(
+                    int.parse(
+                      widget.transaction.category.color.replaceFirst(
+                        '#',
+                        '0xFF',
+                      ),
+                    ),
+                  ).withOpacity(0.15),
+                  child: Icon(
+                    _getIconData(widget.transaction.category.icon),
+                    color: Color(
+                      int.parse(
+                        widget.transaction.category.color.replaceFirst(
+                          '#',
+                          '0xFF',
+                        ),
+                      ),
+                    ),
+                    size: 24,
+                  ),
+                ),
+              ),
+              title: Text(
+                widget.transaction.title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                ),
+              ),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 2),
+                  Text(
+                    widget.transaction.category.name,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  if (widget.transaction.description != null &&
+                      widget.transaction.description!.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      widget.transaction.description!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurfaceVariant.withOpacity(0.7),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              trailing: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Hero(
+                    tag: 'transaction_amount_${widget.transaction.id}',
+                    child: Material(
+                      color: Colors.transparent,
+                      child: Text(
+                        '${isIncome ? '+' : '-'} BDT ${NumberFormat('#,##0.00').format(widget.transaction.amount)}',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: amountColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    DateFormat('h:mm a').format(widget.transaction.date),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-          title: Text(
-            transaction.title,
-            style: const TextStyle(fontWeight: FontWeight.w600),
-          ),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(transaction.category.name),
-              if (transaction.description != null &&
-                  transaction.description!.isNotEmpty)
-                Text(
-                  transaction.description!,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-            ],
-          ),
-          trailing: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Hero(
-                tag: 'transaction_amount_${transaction.id}',
-                child: Material(
-                  color: Colors.transparent,
-                  child: Text(
-                    '${isIncome ? '+' : '-'} BDT ${NumberFormat('#,##0.00').format(transaction.amount)}',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: amountColor,
-                    ),
-                  ),
-                ),
-              ),
-              Text(
-                DateFormat('h:mm a').format(transaction.date),
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
         ),
       ),
+    );
+  }
+
+  Widget _buildSwipeBackground({
+    required Color color,
+    required IconData icon,
+    required Alignment alignment,
+    required EdgeInsets padding,
+  }) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      alignment: alignment,
+      padding: padding,
+      child: Icon(icon, color: Colors.white, size: 28),
     );
   }
 

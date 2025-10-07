@@ -28,6 +28,9 @@ class AnalyticsState extends Equatable implements BaseBlocState {
   // Cache status
   final bool isCached;
 
+  // Last updated timestamp
+  final DateTime? lastUpdated;
+
   const AnalyticsState({
     this.isLoading = false,
     this.isRefreshing = false,
@@ -37,6 +40,7 @@ class AnalyticsState extends Equatable implements BaseBlocState {
     required this.dateRange,
     this.selectedCategoryId,
     this.isCached = false,
+    this.lastUpdated,
   });
 
   /// Factory for initial state
@@ -55,6 +59,7 @@ class AnalyticsState extends Equatable implements BaseBlocState {
     DateTimeRange? dateRange,
     String? selectedCategoryId,
     bool? isCached,
+    DateTime? lastUpdated,
     bool clearFailure = false,
   }) {
     return AnalyticsState(
@@ -66,12 +71,20 @@ class AnalyticsState extends Equatable implements BaseBlocState {
       dateRange: dateRange ?? this.dateRange,
       selectedCategoryId: selectedCategoryId ?? this.selectedCategoryId,
       isCached: isCached ?? this.isCached,
+      lastUpdated: lastUpdated ?? this.lastUpdated,
     );
   }
 
   bool get hasData => data != null;
   bool get hasError => failure != null;
   bool get isEmpty => !hasData && !isLoading && !hasError;
+
+  // Check if data needs refresh (older than 5 minutes)
+  bool get needsRefresh {
+    if (lastUpdated == null) return true;
+    final difference = DateTime.now().difference(lastUpdated!);
+    return difference.inMinutes > 5;
+  }
 
   @override
   List<Object?> get props => [
@@ -83,5 +96,6 @@ class AnalyticsState extends Equatable implements BaseBlocState {
     dateRange,
     selectedCategoryId,
     isCached,
+    lastUpdated,
   ];
 }

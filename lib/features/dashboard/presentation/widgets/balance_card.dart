@@ -1,12 +1,23 @@
 import 'dart:ui';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:techcare_assessment_app/features/dashboard/domain/entities/balance_summary.dart';
 import 'package:techcare_assessment_app/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:techcare_assessment_app/core/widgets/responsive_layout_builder.dart';
+import 'package:techcare_assessment_app/core/theme/constants/app_spacing.dart';
+import 'package:techcare_assessment_app/core/theme/constants/app_sizes.dart';
+import 'package:techcare_assessment_app/core/widgets/animated_number_counter.dart';
 
+/// Balance Card Widget
+///
+/// Features:
+/// - Glassmorphism design with backdrop blur
+/// - 3D flip animation on visibility toggle (600ms, easeInOutCubic)
+/// - Animated number transitions (800ms)
+/// - Monthly income and expense summary
+/// - Responsive layout for portrait/landscape
 class BalanceCard extends StatefulWidget {
   const BalanceCard({super.key});
 
@@ -17,10 +28,6 @@ class BalanceCard extends StatefulWidget {
 class _BalanceCardState extends State<BalanceCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _flipController;
-  final NumberFormat _currencyFormat = NumberFormat.currency(
-    symbol: '\$',
-    decimalDigits: 2,
-  );
 
   @override
   void initState() {
@@ -57,7 +64,7 @@ class _BalanceCardState extends State<BalanceCard>
         }
 
         return TweenAnimationBuilder<double>(
-          tween: Tween(begin: 0.0, end: 1),
+          tween: Tween(begin: 0.0, end: 1.0),
           duration: const Duration(milliseconds: 800),
           curve: Curves.easeOut,
           builder: (context, value, child) {
@@ -77,35 +84,52 @@ class _BalanceCardState extends State<BalanceCard>
     DashboardState state,
     BalanceSummary balanceSummary,
   ) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24.r),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Theme.of(context).primaryColor.withOpacity(0.8),
-            Theme.of(context).primaryColor.withOpacity(0.6),
-          ],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).primaryColor.withOpacity(0.3),
-            blurRadius: 20.r,
-            offset: Offset(0, 10.h), // Responsive shadow offset
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24.r),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return AnimatedBuilder(
+      animation: _flipController,
+      builder: (context, child) {
+        final angle = _flipController.value * math.pi;
+        final transform = Matrix4.identity()
+          ..setEntry(3, 2, 0.001)
+          ..rotateY(angle);
+
+        return Transform(
+          transform: transform,
+          alignment: Alignment.center,
           child: Container(
-            padding: EdgeInsets.all(24.w),
-            child: _buildCardContent(context, state, balanceSummary),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  colorScheme.primary.withOpacity(0.8),
+                  colorScheme.primary.withOpacity(0.6),
+                ],
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: colorScheme.primary.withOpacity(0.3),
+                  blurRadius: 20.r,
+                  offset: Offset(0, 10.h),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                child: Container(
+                  padding: AppSpacing.lgPadding,
+                  child: _buildCardContent(context, state, balanceSummary),
+                ),
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -119,7 +143,6 @@ class _BalanceCardState extends State<BalanceCard>
     final cardSubtleColor = theme.colorScheme.onPrimary.withOpacity(0.7);
     final isVisible = state.isBalanceVisible;
 
-    // Use adaptive layout for better tablet and landscape support
     return OrientationLayoutBuilder(
       portrait: _buildPortraitContent(
         context,
@@ -145,6 +168,9 @@ class _BalanceCardState extends State<BalanceCard>
     bool isVisible,
     BalanceSummary balanceSummary,
   ) {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+
     return Column(
       children: [
         Row(
@@ -152,44 +178,51 @@ class _BalanceCardState extends State<BalanceCard>
           children: [
             Text(
               'Total Balance',
-              style: TextStyle(
+              style: textTheme.titleMedium?.copyWith(
                 color: cardTextColor,
-                fontSize: 16.sp,
                 fontWeight: FontWeight.w500,
               ),
             ),
             IconButton(
               icon: Icon(
-                isVisible ? Icons.visibility : Icons.visibility_off,
+                isVisible ? Icons.visibility_off : Icons.visibility,
                 color: cardTextColor,
+                size: AppSizes.iconMd,
               ),
               onPressed: () => _toggleVisibility(context, isVisible),
             ),
           ],
         ),
-        SizedBox(height: 16.h),
-        Text(
-          isVisible
-              ? _currencyFormat.format(balanceSummary.totalBalance)
-              : '• • • • • •',
-          style: TextStyle(
-            color: cardTextColor,
-            fontSize: 36.sp,
-            fontWeight: FontWeight.bold,
+        AppSpacing.mdHeight,
+        if (isVisible)
+          AnimatedNumberCounter(
+            value: balanceSummary.totalBalance,
+            prefix: '\$',
+            style: textTheme.displaySmall?.copyWith(
+              color: cardTextColor,
+              fontWeight: FontWeight.bold,
+            ),
+          )
+        else
+          Text(
+            '• • • • • •',
+            style: textTheme.displaySmall?.copyWith(
+              color: cardTextColor,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-        SizedBox(height: 24.h),
+        AppSpacing.lgHeight,
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Expanded(
               child: _buildBalanceItem(
+                context: context,
                 icon: Icons.arrow_upward,
                 label: 'Monthly Income',
-                amount: isVisible
-                    ? _currencyFormat.format(balanceSummary.monthlyIncome)
-                    : '• • • • • •',
-                color: Colors.green,
+                amount: balanceSummary.monthlyIncome,
+                isVisible: isVisible,
+                color: theme.colorScheme.tertiary,
                 textColor: cardTextColor,
                 subtleColor: cardSubtleColor,
               ),
@@ -201,12 +234,12 @@ class _BalanceCardState extends State<BalanceCard>
             ),
             Expanded(
               child: _buildBalanceItem(
+                context: context,
                 icon: Icons.arrow_downward,
                 label: 'Monthly Expense',
-                amount: isVisible
-                    ? _currencyFormat.format(balanceSummary.monthlyExpense)
-                    : '• • • • • •',
-                color: Colors.red,
+                amount: balanceSummary.monthlyExpense,
+                isVisible: isVisible,
+                color: theme.colorScheme.error,
                 textColor: cardTextColor,
                 subtleColor: cardSubtleColor,
               ),
@@ -224,7 +257,9 @@ class _BalanceCardState extends State<BalanceCard>
     bool isVisible,
     BalanceSummary balanceSummary,
   ) {
-    // Landscape: horizontal layout for more efficient space usage
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -235,23 +270,29 @@ class _BalanceCardState extends State<BalanceCard>
             children: [
               Text(
                 'Total Balance',
-                style: TextStyle(
+                style: textTheme.titleSmall?.copyWith(
                   color: cardTextColor,
-                  fontSize: 14.sp,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              SizedBox(height: 8.h),
-              Text(
-                isVisible
-                    ? _currencyFormat.format(balanceSummary.totalBalance)
-                    : '• • • • • •',
-                style: TextStyle(
-                  color: cardTextColor,
-                  fontSize: 28.sp,
-                  fontWeight: FontWeight.bold,
+              AppSpacing.smHeight,
+              if (isVisible)
+                AnimatedNumberCounter(
+                  value: balanceSummary.totalBalance,
+                  prefix: '\$',
+                  style: textTheme.headlineMedium?.copyWith(
+                    color: cardTextColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                )
+              else
+                Text(
+                  '• • • • • •',
+                  style: textTheme.headlineMedium?.copyWith(
+                    color: cardTextColor,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
             ],
           ),
         ),
@@ -259,10 +300,11 @@ class _BalanceCardState extends State<BalanceCard>
           icon: Icon(
             isVisible ? Icons.visibility : Icons.visibility_off,
             color: cardTextColor,
+            size: AppSizes.iconMd,
           ),
           onPressed: () => _toggleVisibility(context, isVisible),
         ),
-        SizedBox(width: 16.w),
+        AppSpacing.mdWidth,
         Expanded(
           flex: 3,
           child: Row(
@@ -270,25 +312,25 @@ class _BalanceCardState extends State<BalanceCard>
             children: [
               Expanded(
                 child: _buildBalanceItem(
+                  context: context,
                   icon: Icons.arrow_upward,
                   label: 'Income',
-                  amount: isVisible
-                      ? _currencyFormat.format(balanceSummary.monthlyIncome)
-                      : '• • • • •',
-                  color: Colors.green,
+                  amount: balanceSummary.monthlyIncome,
+                  isVisible: isVisible,
+                  color: theme.colorScheme.tertiary,
                   textColor: cardTextColor,
                   subtleColor: cardSubtleColor,
                 ),
               ),
-              SizedBox(width: 16.w),
+              AppSpacing.mdWidth,
               Expanded(
                 child: _buildBalanceItem(
+                  context: context,
                   icon: Icons.arrow_downward,
                   label: 'Expense',
-                  amount: isVisible
-                      ? _currencyFormat.format(balanceSummary.monthlyExpense)
-                      : '• • • • •',
-                  color: Colors.red,
+                  amount: balanceSummary.monthlyExpense,
+                  isVisible: isVisible,
+                  color: theme.colorScheme.error,
                   textColor: cardTextColor,
                   subtleColor: cardSubtleColor,
                 ),
@@ -301,55 +343,71 @@ class _BalanceCardState extends State<BalanceCard>
   }
 
   Widget _buildBalanceItem({
+    required BuildContext context,
     required IconData icon,
     required String label,
-    required String amount,
+    required double amount,
+    required bool isVisible,
     required Color color,
     required Color textColor,
     required Color subtleColor,
   }) {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+
     return Column(
       children: [
         Container(
-          padding: EdgeInsets.all(8.w),
+          padding: AppSpacing.smPadding,
           decoration: BoxDecoration(
             color: color.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(12.r),
+            borderRadius: BorderRadius.circular(AppSizes.radiusMd),
           ),
-          child: Icon(icon, color: color, size: 20.sp),
+          child: Icon(icon, color: color, size: AppSizes.iconMd),
         ),
-        SizedBox(height: 8.h),
+        AppSpacing.smHeight,
         Text(
           label,
-          style: TextStyle(
+          style: textTheme.bodySmall?.copyWith(
             color: subtleColor,
-            fontSize: 12.sp,
             fontWeight: FontWeight.w500,
           ),
         ),
-        SizedBox(height: 4.h),
-        Text(
-          amount,
-          style: TextStyle(
-            color: textColor,
-            fontSize: 16.sp,
-            fontWeight: FontWeight.bold,
+        AppSpacing.xsHeight,
+        if (isVisible)
+          AnimatedNumberCounter(
+            value: amount,
+            prefix: '\$',
+            style: textTheme.titleLarge?.copyWith(
+              color: textColor,
+              fontWeight: FontWeight.bold,
+            ),
+          )
+        else
+          Text(
+            '• • • • •',
+            style: textTheme.titleLarge?.copyWith(
+              color: textColor,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
       ],
     );
   }
 
   Widget _buildSkeletonCard() {
+    final theme = Theme.of(context);
     return Container(
       height: 200.h,
       decoration: BoxDecoration(
-        color: Colors.grey[300],
-        borderRadius: BorderRadius.circular(24.r),
+        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(AppSizes.radiusLg),
       ),
       child: Center(
         child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(Colors.grey[400]!),
+          valueColor: AlwaysStoppedAnimation<Color>(
+            theme.colorScheme.primary.withOpacity(0.4),
+          ),
         ),
       ),
     );

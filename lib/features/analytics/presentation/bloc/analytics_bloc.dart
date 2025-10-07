@@ -9,7 +9,7 @@ import '../../domain/usecases/refresh_analytics_data_usecase.dart';
 import 'analytics_event.dart';
 import 'analytics_state.dart';
 
-@injectable
+@lazySingleton
 class AnalyticsBloc extends BaseBloc<AnalyticsEvent, AnalyticsState> {
   final GetAnalyticsDataUseCase _getAnalyticsDataUseCase;
   final GetCachedAnalyticsDataUseCase _getCachedAnalyticsDataUseCase;
@@ -24,6 +24,7 @@ class AnalyticsBloc extends BaseBloc<AnalyticsEvent, AnalyticsState> {
     this._refreshAnalyticsDataUseCase,
   ) : super(AnalyticsState.initial()) {
     on<LoadAnalytics>(_onLoadAnalytics);
+    on<LoadAnalyticsIfNeeded>(_onLoadAnalyticsIfNeeded);
     on<UpdateDateRange>(_onUpdateDateRange);
     on<UpdatePeriod>(_onUpdatePeriod);
     on<FilterByCategory>(_onFilterByCategory);
@@ -50,6 +51,9 @@ class AnalyticsBloc extends BaseBloc<AnalyticsEvent, AnalyticsState> {
             selectedPeriod: _currentPeriod,
             dateRange: _currentDateRange,
             isLoading: false,
+            isCached: false,
+            lastUpdated: DateTime.now(),
+            clearFailure: true,
           ),
         );
       },
@@ -57,10 +61,33 @@ class AnalyticsBloc extends BaseBloc<AnalyticsEvent, AnalyticsState> {
         AppLogger.e(
           message: '❌ Failed to load analytics: ${failure.translatedMessage}',
         );
+        // Try to load cached data as fallback
+        add(const LoadCachedAnalytics());
       },
       emit: emit,
-      showLoader: true,
+      showLoader: !state.hasData, // Only show loader if we don't have data yet
     );
+  }
+
+  /// Load analytics data only if needed (cache is stale or empty)
+  Future<void> _onLoadAnalyticsIfNeeded(
+    LoadAnalyticsIfNeeded event,
+    Emitter<AnalyticsState> emit,
+  ) async {
+    AppLogger.i(message: '🔍 Checking if analytics data needs refresh...');
+
+    // If we have fresh data (less than 5 minutes old), don't reload
+    if (state.hasData && !state.needsRefresh) {
+      AppLogger.i(
+        message:
+            'Analytics data is fresh (${DateTime.now().difference(state.lastUpdated!).inMinutes} minutes old), skipping reload',
+      );
+      return;
+    }
+
+    // If cache is stale or empty, load data
+    AppLogger.i(message: 'Analytics data is stale or empty, loading...');
+    add(const LoadAnalytics());
   }
 
   Future<void> _onUpdateDateRange(
@@ -90,6 +117,7 @@ class AnalyticsBloc extends BaseBloc<AnalyticsEvent, AnalyticsState> {
             selectedPeriod: _currentPeriod,
             dateRange: _currentDateRange,
             isLoading: false,
+            lastUpdated: DateTime.now(),
           ),
         );
       },
@@ -128,6 +156,7 @@ class AnalyticsBloc extends BaseBloc<AnalyticsEvent, AnalyticsState> {
             selectedPeriod: _currentPeriod,
             dateRange: _currentDateRange,
             isLoading: false,
+            lastUpdated: DateTime.now(),
           ),
         );
       },
@@ -161,6 +190,9 @@ class AnalyticsBloc extends BaseBloc<AnalyticsEvent, AnalyticsState> {
   ) async {
     AppLogger.i(message: '🔄 Refreshing analytics data...');
 
+    // Set refreshing state
+    emit(state.copyWith(isRefreshing: true, clearFailure: true));
+
     await handleApiCall(
       apiCall: () => _refreshAnalyticsDataUseCase(
         startDate: _currentDateRange.start,
@@ -173,7 +205,10 @@ class AnalyticsBloc extends BaseBloc<AnalyticsEvent, AnalyticsState> {
             data: data,
             selectedPeriod: _currentPeriod,
             dateRange: _currentDateRange,
-            isLoading: false,
+            isRefreshing: false,
+            isCached: false,
+            lastUpdated: DateTime.now(),
+            clearFailure: true,
           ),
         );
       },
@@ -182,6 +217,7 @@ class AnalyticsBloc extends BaseBloc<AnalyticsEvent, AnalyticsState> {
           message:
               '❌ Failed to refresh analytics: ${failure.translatedMessage}',
         );
+        emit(state.copyWith(isRefreshing: false));
       },
       emit: emit,
       showLoader: false, // Don't show full loader for refresh
@@ -207,17 +243,15 @@ class AnalyticsBloc extends BaseBloc<AnalyticsEvent, AnalyticsState> {
             selectedPeriod: _currentPeriod,
             dateRange: _currentDateRange,
             isCached: true,
-            isLoading: false,
+            clearFailure: true,
           ),
         );
       },
       onError: (failure) {
-        AppLogger.w(message: '⚠️ No cached data available, loading fresh data');
-        // If no cache, load fresh data
-        add(const LoadAnalytics());
+        AppLogger.w(message: '⚠️ No cached data available');
       },
       emit: emit,
-      showLoader: true,
+      showLoader: false, // Don't show loader when loading from cache
     );
   }
 }

@@ -31,7 +31,7 @@ part 'transaction_state.dart';
 /// - Create, update, and delete transactions
 /// - Optimistic UI updates
 /// - Cache support with offline fallback
-@injectable
+@lazySingleton
 class TransactionBloc extends BaseBloc<TransactionEvent, TransactionState> {
   final GetTransactionsUseCase _getTransactionsUseCase;
   final GetTransactionByIdUseCase _getTransactionByIdUseCase;

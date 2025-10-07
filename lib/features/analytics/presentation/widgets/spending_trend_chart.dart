@@ -2,18 +2,50 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../domain/entities/monthly_trend.dart';
 
-class SpendingTrendChart extends StatelessWidget {
+class SpendingTrendChart extends StatefulWidget {
   final List<MonthlyTrend> trends;
 
   const SpendingTrendChart({super.key, required this.trends});
 
   @override
+  State<SpendingTrendChart> createState() => _SpendingTrendChartState();
+}
+
+class _SpendingTrendChartState extends State<SpendingTrendChart>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    );
+
+    _animation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
+
+    // Start animation
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (trends.isEmpty) {
+    if (widget.trends.isEmpty) {
       return const SizedBox.shrink();
     }
 
-    final maxValue = trends.fold<double>(
+    final maxValue = widget.trends.fold<double>(
       0,
       (max, trend) =>
           [max, trend.income, trend.expense].reduce((a, b) => a > b ? a : b),
@@ -43,7 +75,16 @@ class SpendingTrendChart extends StatelessWidget {
             const SizedBox(height: 24),
             SizedBox(
               height: 200,
-              child: _SimpleLineChart(trends: trends, maxValue: maxValue),
+              child: AnimatedBuilder(
+                animation: _animation,
+                builder: (context, child) {
+                  return _SimpleLineChart(
+                    trends: widget.trends,
+                    maxValue: maxValue,
+                    animationProgress: _animation.value,
+                  );
+                },
+              ),
             ),
           ],
         ),
@@ -74,8 +115,13 @@ class _Legend extends StatelessWidget {
 class _SimpleLineChart extends StatelessWidget {
   final List<MonthlyTrend> trends;
   final double maxValue;
+  final double animationProgress;
 
-  const _SimpleLineChart({required this.trends, required this.maxValue});
+  const _SimpleLineChart({
+    required this.trends,
+    required this.maxValue,
+    required this.animationProgress,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -87,6 +133,7 @@ class _SimpleLineChart extends StatelessWidget {
         maxValue: maxValue,
         incomeColor: Colors.green,
         expenseColor: Colors.red,
+        animationProgress: animationProgress,
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.end,
@@ -113,12 +160,14 @@ class _LineChartPainter extends CustomPainter {
   final double maxValue;
   final Color incomeColor;
   final Color expenseColor;
+  final double animationProgress;
 
   _LineChartPainter({
     required this.trends,
     required this.maxValue,
     required this.incomeColor,
     required this.expenseColor,
+    required this.animationProgress,
   });
 
   @override
@@ -135,7 +184,11 @@ class _LineChartPainter extends CustomPainter {
     final spacing = size.width / (trends.length - 1);
     final bottomPadding = 20.0; // Space for month labels
 
-    for (var i = 0; i < trends.length; i++) {
+    // Calculate how many points to show based on animation progress
+    final totalPoints = trends.length;
+    final animatedPointCount = (totalPoints * animationProgress).ceil();
+
+    for (var i = 0; i < animatedPointCount && i < trends.length; i++) {
       final x = i * spacing;
       final incomeY =
           size.height -
@@ -150,11 +203,74 @@ class _LineChartPainter extends CustomPainter {
         incomePath.moveTo(x, incomeY);
         expensePath.moveTo(x, expenseY);
       } else {
-        incomePath.lineTo(x, incomeY);
-        expensePath.lineTo(x, expenseY);
-      }
+        // For the last visible point during animation, interpolate
+        if (i == animatedPointCount - 1 && animationProgress < 1.0) {
+          final progress =
+              (totalPoints * animationProgress) - (animatedPointCount - 1);
+          final prevX = (i - 1) * spacing;
 
-      // Draw dots
+          final prevIncomeY =
+              size.height -
+              bottomPadding -
+              ((trends[i - 1].income / maxValue) *
+                  (size.height - bottomPadding));
+          final prevExpenseY =
+              size.height -
+              bottomPadding -
+              ((trends[i - 1].expense / maxValue) *
+                  (size.height - bottomPadding));
+
+          final interpolatedX = prevX + (x - prevX) * progress;
+          final interpolatedIncomeY =
+              prevIncomeY + (incomeY - prevIncomeY) * progress;
+          final interpolatedExpenseY =
+              prevExpenseY + (expenseY - prevExpenseY) * progress;
+
+          incomePath.lineTo(interpolatedX, interpolatedIncomeY);
+          expensePath.lineTo(interpolatedX, interpolatedExpenseY);
+
+          // Draw interpolated dots
+          canvas.drawCircle(
+            Offset(interpolatedX, interpolatedIncomeY),
+            4,
+            Paint()..color = incomeColor,
+          );
+          canvas.drawCircle(
+            Offset(interpolatedX, interpolatedExpenseY),
+            4,
+            Paint()..color = expenseColor,
+          );
+        } else {
+          incomePath.lineTo(x, incomeY);
+          expensePath.lineTo(x, expenseY);
+
+          // Draw dots
+          canvas.drawCircle(
+            Offset(x, incomeY),
+            4,
+            Paint()..color = incomeColor,
+          );
+          canvas.drawCircle(
+            Offset(x, expenseY),
+            4,
+            Paint()..color = expenseColor,
+          );
+        }
+      }
+    }
+
+    // Draw the first point immediately
+    if (animatedPointCount > 0) {
+      final x = 0.0;
+      final incomeY =
+          size.height -
+          bottomPadding -
+          ((trends[0].income / maxValue) * (size.height - bottomPadding));
+      final expenseY =
+          size.height -
+          bottomPadding -
+          ((trends[0].expense / maxValue) * (size.height - bottomPadding));
+
       canvas.drawCircle(Offset(x, incomeY), 4, Paint()..color = incomeColor);
       canvas.drawCircle(Offset(x, expenseY), 4, Paint()..color = expenseColor);
     }

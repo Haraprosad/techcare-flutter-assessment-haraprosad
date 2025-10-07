@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:techcare_assessment_app/core/di/injection.dart';
 import 'package:techcare_assessment_app/features/transactions/presentation/bloc/transaction_bloc.dart';
 import 'package:techcare_assessment_app/features/transactions/presentation/pages/add_edit_transaction_screen.dart';
 import 'package:techcare_assessment_app/features/transactions/presentation/widgets/transaction_search_bar.dart';
@@ -15,10 +14,7 @@ class TransactionsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => sl<TransactionBloc>(),
-      child: const _TransactionsScreenBody(),
-    );
+    return const _TransactionsScreenBody();
   }
 }
 

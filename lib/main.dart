@@ -12,6 +12,9 @@ import 'package:techcare_assessment_app/core/theme/bloc/theme_bloc.dart';
 import 'package:techcare_assessment_app/core/theme/constants/breakpoints.dart';
 import 'package:techcare_assessment_app/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'package:techcare_assessment_app/core/network/cubit/connectivity_cubit.dart';
+import 'package:techcare_assessment_app/features/analytics/presentation/bloc/analytics_bloc.dart';
+import 'package:techcare_assessment_app/features/analytics/presentation/bloc/analytics_event.dart';
+import 'package:techcare_assessment_app/features/transactions/presentation/bloc/transaction_bloc.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -45,6 +48,13 @@ class MyApp extends StatelessWidget {
                   create: (context) =>
                       sl<DashboardBloc>()
                         ..add(const LoadDashboardDataIfNeededEvent()),
+                ),
+                BlocProvider<AnalyticsBloc>(
+                  create: (context) =>
+                      sl<AnalyticsBloc>()..add(const LoadAnalyticsIfNeeded()),
+                ),
+                BlocProvider<TransactionBloc>(
+                  create: (context) => sl<TransactionBloc>(),
                 ),
               ],
               child: const AppView(),

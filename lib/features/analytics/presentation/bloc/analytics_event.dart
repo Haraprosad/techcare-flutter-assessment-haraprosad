@@ -61,6 +61,11 @@ class LoadAnalytics extends AnalyticsEvent {
   const LoadAnalytics();
 }
 
+/// Load analytics data only if needed (cache is stale or empty)
+class LoadAnalyticsIfNeeded extends AnalyticsEvent {
+  const LoadAnalyticsIfNeeded();
+}
+
 /// Update the date range and reload analytics
 class UpdateDateRange extends AnalyticsEvent {
   final DateTime startDate;
