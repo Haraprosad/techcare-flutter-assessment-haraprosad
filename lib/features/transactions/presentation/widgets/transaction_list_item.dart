@@ -6,11 +6,15 @@ import 'package:techcare_assessment_app/features/transactions/domain/entities/tr
 class TransactionListItem extends StatelessWidget {
   final Transaction transaction;
   final VoidCallback onTap;
+  final VoidCallback? onRefresh; // Callback to refresh after edit/delete
+  final VoidCallback? onDelete; // Callback when transaction is deleted
 
   const TransactionListItem({
     super.key,
     required this.transaction,
     required this.onTap,
+    this.onRefresh,
+    this.onDelete,
   });
 
   @override
@@ -35,10 +39,15 @@ class TransactionListItem extends StatelessWidget {
       confirmDismiss: (direction) async {
         if (direction == DismissDirection.endToStart) {
           // Delete action
-          return await _showDeleteConfirmation(context);
+          final confirmed = await _showDeleteConfirmation(context);
+          if (confirmed == true && onDelete != null) {
+            onDelete!();
+            return true;
+          }
+          return false;
         } else {
-          // Edit action
-          _onEdit(context);
+          // Edit action - use the onTap callback
+          onTap();
           return false;
         }
       },
@@ -125,10 +134,6 @@ class TransactionListItem extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  void _onEdit(BuildContext context) {
-    // TODO: Navigate to edit screen
   }
 
   IconData _getIconData(String iconName) {

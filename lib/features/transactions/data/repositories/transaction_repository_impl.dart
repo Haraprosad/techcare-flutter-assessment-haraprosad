@@ -2,9 +2,11 @@ import 'package:injectable/injectable.dart';
 import 'package:techcare_assessment_app/core/logger/app_logger.dart';
 import 'package:techcare_assessment_app/core/network/models/api_result.dart';
 import 'package:techcare_assessment_app/core/network/repository/base_api_repository.dart';
+import 'package:techcare_assessment_app/features/dashboard/data/models/category_model.dart';
 import 'package:techcare_assessment_app/features/dashboard/data/models/transaction_model.dart';
 import 'package:techcare_assessment_app/features/transactions/data/datasources/transaction_local_datasource.dart';
 import 'package:techcare_assessment_app/features/transactions/data/datasources/transaction_remote_datasource.dart';
+import 'package:techcare_assessment_app/features/transactions/domain/entities/category.dart';
 import 'package:techcare_assessment_app/features/transactions/domain/entities/paginated_transactions.dart';
 import 'package:techcare_assessment_app/features/transactions/domain/entities/transaction.dart';
 import 'package:techcare_assessment_app/features/transactions/domain/entities/transaction_filters.dart';
@@ -252,9 +254,24 @@ class TransactionRepositoryImpl extends BaseApiRepository
     });
   }
 
+  @override
+  Future<ApiResult<List<Category>>> getCategories() async {
+    AppLogger.d(message: '🏁 getCategories called in repository');
+
+    return safeApiCall(() async {
+      final categories = await _remoteDataSource.getCategories();
+      return categories.map((model) => model.toEntity()).toList();
+    });
+  }
+
   /// Helper method to convert Category entity to CategoryModel
-  _categoryEntityToModel(category) {
-    // This will need to import CategoryModel from dashboard
-    return category;
+  CategoryModel _categoryEntityToModel(Category category) {
+    return CategoryModel(
+      id: category.id,
+      name: category.name,
+      icon: category.icon,
+      color: category.color,
+      budget: category.budget,
+    );
   }
 }

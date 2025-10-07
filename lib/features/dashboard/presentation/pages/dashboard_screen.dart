@@ -6,6 +6,8 @@ import 'package:techcare_assessment_app/features/dashboard/presentation/bloc/das
 import 'package:techcare_assessment_app/features/dashboard/presentation/widgets/balance_card.dart';
 import 'package:techcare_assessment_app/features/dashboard/presentation/widgets/recent_transactions_list.dart';
 import 'package:techcare_assessment_app/features/dashboard/presentation/widgets/spending_overview.dart';
+import 'package:techcare_assessment_app/features/transactions/domain/entities/transaction.dart';
+import 'package:techcare_assessment_app/features/transactions/presentation/pages/add_edit_transaction_screen.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:techcare_assessment_app/core/theme/constants/breakpoints.dart';
 import 'package:techcare_assessment_app/core/widgets/responsive_layout_builder.dart';
@@ -335,9 +337,8 @@ class _DashboardScreenViewState extends State<_DashboardScreenView> {
           foregroundColor: Colors.white,
           label: 'Add Income',
           labelStyle: const TextStyle(fontWeight: FontWeight.w500),
-          onTap: () {
-            // TODO: Navigate to add income screen with Hero animation
-          },
+          onTap: () =>
+              _navigateToAddTransaction(context, TransactionType.income),
         ),
         SpeedDialChild(
           child: const Icon(Icons.arrow_downward),
@@ -345,9 +346,8 @@ class _DashboardScreenViewState extends State<_DashboardScreenView> {
           foregroundColor: Colors.white,
           label: 'Add Expense',
           labelStyle: const TextStyle(fontWeight: FontWeight.w500),
-          onTap: () {
-            // TODO: Navigate to add expense screen with Hero animation
-          },
+          onTap: () =>
+              _navigateToAddTransaction(context, TransactionType.expense),
         ),
       ],
     );
@@ -406,6 +406,35 @@ class _DashboardScreenViewState extends State<_DashboardScreenView> {
         ),
       ),
     );
+  }
+
+  /// Navigate to Add/Edit Transaction screen as modal
+  void _navigateToAddTransaction(
+    BuildContext context,
+    TransactionType? initialType,
+  ) async {
+    final result = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.95,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        builder: (context, scrollController) => Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: AddEditTransactionScreen(initialType: initialType),
+        ),
+      ),
+    );
+
+    // Refresh dashboard if transaction was saved
+    if (result == true && mounted) {
+      context.read<DashboardBloc>().add(const RefreshDashboardDataEvent());
+    }
   }
 
   /// Empty state when no data available

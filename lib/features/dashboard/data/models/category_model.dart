@@ -11,7 +11,7 @@ abstract class CategoryModel with _$CategoryModel {
     @Default("") String name,
     @Default("") String icon,
     @Default("") String color,
-    double? budget,
+    @JsonKey(includeIfNull: false) double? budget,
   }) = _CategoryModel;
 
   factory CategoryModel.fromJson(Map<String, dynamic> json) =>

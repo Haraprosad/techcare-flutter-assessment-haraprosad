@@ -69,7 +69,7 @@ class MockTransactionService {
       // Category filter
       if (filters.categoryIds.isNotEmpty) {
         final categoryId =
-            (transaction['category'] as Map<String, dynamic>)['id'] as String;
+            (transaction['category'] as Map<String, dynamic>)['_id'] as String;
         if (!filters.categoryIds.contains(categoryId)) {
           return false;
         }
@@ -178,7 +178,7 @@ class MockTransactionService {
     final allTransactions = _getTransactions();
     try {
       return allTransactions.firstWhere(
-        (transaction) => transaction['id'] == id,
+        (transaction) => transaction['_id'] == id,
       );
     } catch (e) {
       return null;
@@ -194,14 +194,14 @@ class MockTransactionService {
     // Generate new ID
     final newTransaction = {
       ...transaction,
-      'id': 'txn_${DateTime.now().millisecondsSinceEpoch}',
+      '_id': 'txn_${DateTime.now().millisecondsSinceEpoch}',
     };
 
     // Add to runtime storage
     final transactions = _getTransactions();
     transactions.insert(0, newTransaction);
 
-    AppLogger.i(message: 'Created transaction: ${newTransaction['id']}');
+    AppLogger.i(message: 'Created transaction: ${newTransaction['_id']}');
     return newTransaction;
   }
 
@@ -211,16 +211,37 @@ class MockTransactionService {
   ) async {
     await _simulateNetworkDelay();
 
-    final transactions = _getTransactions();
+    AppLogger.d(
+      message: '🔍 Looking for transaction with _id: ${transaction['_id']}',
+    );
+    AppLogger.d(message: '🔍 Received transaction data: $transaction');
 
-    final index = transactions.indexWhere((t) => t['id'] == transaction['id']);
+    final transactions = _getTransactions();
+    AppLogger.d(
+      message: '🔍 Total transactions in storage: ${transactions.length}',
+    );
+
+    final index = transactions.indexWhere(
+      (t) => t['_id'] == transaction['_id'],
+    );
 
     if (index == -1) {
+      AppLogger.e(
+        message: '❌ Transaction not found with _id: ${transaction['_id']}',
+      );
+      AppLogger.d(
+        message:
+            '🔍 Available transaction IDs: ${transactions.map((t) => t['_id']).toList()}',
+      );
       return null;
     }
 
+    AppLogger.d(message: '✅ Found transaction at index: $index');
+    AppLogger.d(message: '🔍 Original transaction: ${transactions[index]}');
+    AppLogger.d(message: '🔍 New transaction data: $transaction');
     transactions[index] = transaction;
-    AppLogger.i(message: 'Updated transaction: ${transaction['id']}');
+    AppLogger.i(message: '✅ Updated transaction: ${transaction['_id']}');
+    AppLogger.d(message: '🔍 Returning transaction: $transaction');
     return transaction;
   }
 
@@ -231,7 +252,7 @@ class MockTransactionService {
     final transactions = _getTransactions();
 
     final initialLength = transactions.length;
-    transactions.removeWhere((t) => t['id'] == id);
+    transactions.removeWhere((t) => t['_id'] == id);
     final removed = initialLength > transactions.length;
     AppLogger.i(message: 'Deleted transaction: $id (Success: $removed)');
     return removed;

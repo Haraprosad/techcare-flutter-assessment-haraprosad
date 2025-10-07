@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:techcare_assessment_app/features/transactions/domain/entities/transaction.dart';
+import 'package:techcare_assessment_app/features/transactions/presentation/bloc/transaction_bloc.dart';
+import 'package:techcare_assessment_app/features/transactions/presentation/pages/add_edit_transaction_screen.dart';
 import 'package:techcare_assessment_app/features/transactions/presentation/widgets/transaction_list_item.dart';
 
 /// Transaction list with grouped date headers and infinite scroll
@@ -8,12 +11,14 @@ class TransactionList extends StatelessWidget {
   final ScrollController scrollController;
   final List<Transaction> transactions;
   final bool isLoadingMore;
+  final VoidCallback? onRefresh; // Callback to refresh after edit/delete
 
   const TransactionList({
     super.key,
     required this.scrollController,
     required this.transactions,
     required this.isLoadingMore,
+    this.onRefresh,
   });
 
   Map<String, List<Transaction>> _groupTransactionsByDate() {
@@ -96,6 +101,8 @@ class TransactionList extends StatelessWidget {
               (transaction) => TransactionListItem(
                 transaction: transaction,
                 onTap: () => _onTransactionTap(context, transaction),
+                onRefresh: onRefresh,
+                onDelete: () => _onTransactionDelete(context, transaction),
               ),
             ),
           ],
@@ -104,7 +111,33 @@ class TransactionList extends StatelessWidget {
     );
   }
 
-  void _onTransactionTap(BuildContext context, Transaction transaction) {
-    // TODO: Navigate to transaction details
+  void _onTransactionTap(BuildContext context, Transaction transaction) async {
+    final result = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.95,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        builder: (context, scrollController) => Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: AddEditTransactionScreen(transaction: transaction),
+        ),
+      ),
+    );
+
+    // Refresh the list if transaction was updated
+    if (result == true && onRefresh != null) {
+      onRefresh!();
+    }
+  }
+
+  void _onTransactionDelete(BuildContext context, Transaction transaction) {
+    // Dispatch delete event to bloc
+    context.read<TransactionBloc>().add(DeleteTransactionEvent(transaction.id));
   }
 }

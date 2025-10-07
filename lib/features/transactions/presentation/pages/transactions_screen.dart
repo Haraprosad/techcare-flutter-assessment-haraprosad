@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:techcare_assessment_app/core/di/injection.dart';
 import 'package:techcare_assessment_app/features/transactions/presentation/bloc/transaction_bloc.dart';
+import 'package:techcare_assessment_app/features/transactions/presentation/pages/add_edit_transaction_screen.dart';
 import 'package:techcare_assessment_app/features/transactions/presentation/widgets/transaction_search_bar.dart';
 import 'package:techcare_assessment_app/features/transactions/presentation/widgets/transaction_filter_chip.dart';
 import 'package:techcare_assessment_app/features/transactions/presentation/widgets/transaction_list.dart';
@@ -112,6 +113,11 @@ class _TransactionsScreenBodyState extends State<_TransactionsScreenBody> {
                     scrollController: _scrollController,
                     transactions: state.transactions,
                     isLoadingMore: state.isLoadingMore,
+                    onRefresh: () {
+                      context.read<TransactionBloc>().add(
+                        const RefreshTransactionsEvent(),
+                      );
+                    },
                   ),
                 );
               },
@@ -139,7 +145,28 @@ class _TransactionsScreenBodyState extends State<_TransactionsScreenBody> {
     );
   }
 
-  void _navigateToAddTransaction(BuildContext context) {
-    // TODO: Navigate to add transaction screen
+  void _navigateToAddTransaction(BuildContext context) async {
+    final result = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.95,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        builder: (context, scrollController) => Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: const AddEditTransactionScreen(),
+        ),
+      ),
+    );
+
+    // Refresh the list if transaction was saved
+    if (result == true && mounted) {
+      context.read<TransactionBloc>().add(const RefreshTransactionsEvent());
+    }
   }
 }

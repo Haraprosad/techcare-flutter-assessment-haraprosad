@@ -3,6 +3,7 @@ import 'package:techcare_assessment_app/core/logger/app_logger.dart';
 import 'package:techcare_assessment_app/core/network/enums/custom_error_type.dart';
 import 'package:techcare_assessment_app/core/network/error_handling/models/custom_exception.dart';
 import 'package:techcare_assessment_app/core/network/services/mock_transaction_service.dart';
+import 'package:techcare_assessment_app/features/dashboard/data/models/category_model.dart';
 import 'package:techcare_assessment_app/features/dashboard/data/models/transaction_model.dart';
 import 'package:techcare_assessment_app/features/transactions/data/models/paginated_transactions_model.dart';
 import 'package:techcare_assessment_app/features/transactions/domain/entities/transaction_filters.dart';
@@ -28,6 +29,9 @@ abstract class TransactionRemoteDataSource {
 
   /// Deletes a transaction
   Future<void> deleteTransaction(String id);
+
+  /// Fetches all available categories
+  Future<List<CategoryModel>> getCategories();
 }
 
 @Injectable(as: TransactionRemoteDataSource)
@@ -135,6 +139,7 @@ class TransactionRemoteDataSourceImpl implements TransactionRemoteDataSource {
     try {
       AppLogger.d(message: '📤 Updating transaction: ${transaction.id}');
       final transactionJson = transaction.toJson();
+      AppLogger.d(message: '📝 Transaction JSON: $transactionJson');
       final data = await _mockService.updateTransaction(transactionJson);
 
       if (data == null) {
@@ -143,6 +148,11 @@ class TransactionRemoteDataSourceImpl implements TransactionRemoteDataSource {
           originalError: Exception('Transaction not found: ${transaction.id}'),
         );
       }
+
+      AppLogger.d(message: '📝 Response data from mock service: $data');
+      AppLogger.d(
+        message: '📝 Attempting to parse response to TransactionModel...',
+      );
 
       final model = TransactionModel.fromJson(data);
       AppLogger.i(message: '✅ Transaction updated successfully');
@@ -154,6 +164,8 @@ class TransactionRemoteDataSourceImpl implements TransactionRemoteDataSource {
         error: e,
         stackTrace: stackTrace,
       );
+      AppLogger.e(message: '❌ Error type: ${e.runtimeType}');
+      AppLogger.e(message: '❌ Error details: $e');
       if (e is CustomException) rethrow;
       throw CustomException(
         type: CustomErrorType.parsingError,
@@ -183,6 +195,34 @@ class TransactionRemoteDataSourceImpl implements TransactionRemoteDataSource {
         stackTrace: stackTrace,
       );
       if (e is CustomException) rethrow;
+      throw CustomException(
+        type: CustomErrorType.parsingError,
+        originalError: e,
+      );
+    }
+  }
+
+  @override
+  Future<List<CategoryModel>> getCategories() async {
+    try {
+      AppLogger.d(message: '📥 Fetching categories...');
+      final data = await _mockService.getCategories();
+
+      final categories = data
+          .map((json) => CategoryModel.fromJson(json))
+          .toList();
+
+      AppLogger.d(
+        message: '✅ Successfully fetched ${categories.length} categories',
+      );
+
+      return categories;
+    } catch (e, stackTrace) {
+      AppLogger.e(
+        message: '❌ Error in getCategories',
+        error: e,
+        stackTrace: stackTrace,
+      );
       throw CustomException(
         type: CustomErrorType.parsingError,
         originalError: e,

@@ -1,4 +1,5 @@
 import 'package:techcare_assessment_app/core/network/models/api_result.dart';
+import 'package:techcare_assessment_app/features/transactions/domain/entities/category.dart';
 import 'package:techcare_assessment_app/features/transactions/domain/entities/paginated_transactions.dart';
 import 'package:techcare_assessment_app/features/transactions/domain/entities/transaction.dart';
 import 'package:techcare_assessment_app/features/transactions/domain/entities/transaction_filters.dart';
@@ -44,4 +45,9 @@ abstract class TransactionRepository {
     required int pageSize,
     TransactionFilters? filters,
   });
+
+  /// Fetches all available categories
+  /// Returns [ApiSuccess(List<Category>)] on success
+  /// Returns [ApiFailure(ApiCallFailureModel)] on error
+  Future<ApiResult<List<Category>>> getCategories();
 }
