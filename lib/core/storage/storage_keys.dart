@@ -25,4 +25,10 @@ class StorageKeys {
 
   // Cart related keys
   static const String cartToken = 'cartToken';
+
+  // Dashboard cache keys (for Hive)
+  static const String cachedDashboardData = 'dashboard_data';
+  static const String cachedBalanceSummary = 'balance_summary';
+  static const String dashboardCacheTimestamp = 'dashboard_timestamp';
+  static const String balanceSummaryCacheTimestamp = 'balance_timestamp';
 }

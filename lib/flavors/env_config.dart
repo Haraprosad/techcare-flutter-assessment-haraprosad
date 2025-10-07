@@ -1,4 +1,3 @@
-
 import 'environment.dart';
 
 /// #Environment Configuration Management
@@ -7,10 +6,10 @@ import 'environment.dart';
 class EnvConfigException implements Exception {
   /// The error message describing what went wrong.
   final String message;
-  
+
   /// Creates a new environment configuration exception.
   const EnvConfigException(this.message);
-  
+
   @override
   String toString() => 'EnvConfigException: $message';
 }
@@ -20,19 +19,19 @@ class EnvConfig {
   /// The display name of the application.
 
   late final String _appName;
-  
+
   /// The base URL for API endpoints.
-  
+
   late final String _baseUrl;
 
   late final String _imageBaseUrl;
-  
+
   /// The current application environment.
   late final Env _env;
 
   /// Private constructor for singleton pattern.
   EnvConfig._internal();
-  
+
   /// The singleton instance of [EnvConfig].
   static final EnvConfig instance = EnvConfig._internal();
 
@@ -40,7 +39,7 @@ class EnvConfig {
   bool _lock = false;
 
   /// Gets the application name.
-  /// 
+  ///
   /// Throws [StateError] if accessed before initialization.
   String get appName {
     _validateInitialized();
@@ -48,20 +47,20 @@ class EnvConfig {
   }
 
   /// Gets the base URL for API endpoints.
-  /// 
+  ///
   /// Throws [StateError] if accessed before initialization.
   String get baseUrl {
     _validateInitialized();
     return _baseUrl;
   }
 
-   String get imageBaseUrl {
+  String get imageBaseUrl {
     _validateInitialized();
     return _imageBaseUrl;
   }
 
   /// Gets the current environment.
-  /// 
+  ///
   /// Throws [StateError] if accessed before initialization.
   Env get env {
     _validateInitialized();
@@ -69,13 +68,13 @@ class EnvConfig {
   }
 
   /// Gets whether the configuration has been initialized.
-  /// 
+  ///
   /// This is useful for checking initialization status without
   /// throwing exceptions.
   bool get isInitialized => _lock;
 
   /// Validates that the configuration has been initialized.
-  /// 
+  ///
   /// Throws [StateError] if not initialized.
   void _validateInitialized() {
     if (!_lock) {
@@ -86,7 +85,7 @@ class EnvConfig {
   }
 
   /// Validates the provided configuration parameters.
-  /// 
+  ///
   /// Throws [EnvConfigException] if any parameter is invalid.
   static void _validateParameters({
     required String appName,
@@ -105,40 +104,39 @@ class EnvConfig {
 
     try {
       final uri = Uri.parse(baseUrl);
-      if (!uri.hasScheme || (!uri.scheme.startsWith('http'))) {
+      if (!uri.hasScheme ||
+          (!uri.scheme.startsWith('http') && uri.scheme != 'mock')) {
         throw const EnvConfigException(
-          'Base URL must be a valid HTTP/HTTPS URL',
+          'Base URL must be a valid HTTP/HTTPS URL or mock:// URL',
         );
       }
     } catch (e) {
       throw EnvConfigException('Invalid base URL format: $baseUrl');
     }
   }
-  
+
   /// Factory constructor to initialize the environment configuration.
   factory EnvConfig.instantiate({
     required String appName,
     required String baseUrl,
+    required String imageBaseUrl,
     required Env env,
   }) {
     // Return existing instance if already locked (configured)
     if (instance._lock) return instance;
 
     // Validate parameters before setting
-    _validateParameters(
-      appName: appName,
-      baseUrl: baseUrl,
-      env: env,
-    );
+    _validateParameters(appName: appName, baseUrl: baseUrl, env: env);
 
     // Configure the singleton instance
     instance._appName = appName.trim();
     instance._baseUrl = baseUrl.trim();
+    instance._imageBaseUrl = imageBaseUrl.trim();
     instance._env = env;
-    
+
     // Lock the configuration to prevent future modifications
     instance._lock = true;
-    
+
     return instance;
   }
 

@@ -7,6 +7,7 @@ import 'package:techcare_assessment_app/core/constants/string_constants.dart';
 import 'package:techcare_assessment_app/core/di/injection.dart';
 import 'package:techcare_assessment_app/core/logger/app_logger.dart';
 import 'package:techcare_assessment_app/core/observers/bloc_observer.dart';
+import 'package:techcare_assessment_app/core/storage/hive_manager.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../core/widgets/flutter_error_screen.dart';
 import '../main.dart';
@@ -30,12 +31,20 @@ Future<void> initializeApp(Env env) async {
       EnvConfig.instantiate(
         appName: EnvConfig.createAppName(StringConstants.appName, env),
         baseUrl: dotenv.env[EnvConstants.envKeyBaseUrl]!,
+        imageBaseUrl: dotenv.env[EnvConstants.envKeyImageBaseUrl] ?? '',
         env: env,
       );
 
       // Initialize dependency injection container
       // Sets up all services, repositories, BLoCs, and other dependencies
       await configureDependencies();
+
+      // Initialize Hive storage
+      // Must be done after dependency injection is configured
+      AppLogger.i(message: '🗄️ Initializing Hive storage...');
+      final hiveManager = sl<HiveManager>();
+      await hiveManager.initialize();
+      AppLogger.i(message: '✅ Hive storage initialized successfully');
 
       // Configure BLoC observer for state management monitoring
       // Provides logging and debugging capabilities for BLoC events and states

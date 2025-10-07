@@ -3,4 +3,5 @@ class EnvConstants {
   EnvConstants._();
 
   static const String envKeyBaseUrl = "BASE_URL";
+  static const String envKeyImageBaseUrl = "IMAGE_BASE_URL";
 }

@@ -128,4 +128,37 @@ class PreferencesManager {
       throw PreferencesException('Failed to clear preferences', e);
     }
   }
+
+  // Generic methods for flexible data storage
+  Future<void> setString(String key, String value) async {
+    try {
+      await _prefs.setString(key, value);
+    } catch (e) {
+      throw PreferencesException('Failed to save string for key: $key', e);
+    }
+  }
+
+  String? getString(String key) {
+    return _prefs.getString(key);
+  }
+
+  Future<void> setInt(String key, int value) async {
+    try {
+      await _prefs.setInt(key, value);
+    } catch (e) {
+      throw PreferencesException('Failed to save int for key: $key', e);
+    }
+  }
+
+  int? getInt(String key) {
+    return _prefs.getInt(key);
+  }
+
+  Future<void> remove(String key) async {
+    try {
+      await _prefs.remove(key);
+    } catch (e) {
+      throw PreferencesException('Failed to remove key: $key', e);
+    }
+  }
 }

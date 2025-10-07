@@ -1,5 +1,9 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
+import 'package:techcare_assessment_app/features/dashboard/domain/entities/balance_summary.dart';
+import 'package:techcare_assessment_app/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 
 class BalanceCard extends StatefulWidget {
   const BalanceCard({super.key});
@@ -10,28 +14,108 @@ class BalanceCard extends StatefulWidget {
 
 class _BalanceCardState extends State<BalanceCard>
     with SingleTickerProviderStateMixin {
-  bool _isBalanceVisible = true;
-  late AnimationController _animationController;
+  late AnimationController _flipController;
+  final NumberFormat _currencyFormat = NumberFormat.currency(
+    symbol: '\$',
+    decimalDigits: 2,
+  );
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
+    _flipController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 600),
     );
   }
 
   @override
   void dispose() {
-    _animationController.dispose();
+    _flipController.dispose();
     super.dispose();
   }
 
-  Widget _buildCardContent({required bool isVisible}) {
+  void _toggleVisibility(BuildContext context, bool currentVisibility) {
+    if (currentVisibility) {
+      _flipController.forward();
+    } else {
+      _flipController.reverse();
+    }
+    context.read<DashboardBloc>().add(const ToggleBalanceVisibilityEvent());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<DashboardBloc, DashboardState>(
+      builder: (context, state) {
+        final balanceSummary = state.balanceSummary;
+
+        if (balanceSummary == null) {
+          return _buildSkeletonCard();
+        }
+
+        return TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0.0, end: 1.0),
+          duration: const Duration(milliseconds: 800),
+          curve: Curves.easeOut,
+          builder: (context, value, child) {
+            return Transform.scale(
+              scale: 0.8 + (0.2 * value),
+              child: Opacity(opacity: value, child: child),
+            );
+          },
+          child: _buildGlassmorphicCard(context, state, balanceSummary),
+        );
+      },
+    );
+  }
+
+  Widget _buildGlassmorphicCard(
+    BuildContext context,
+    DashboardState state,
+    BalanceSummary balanceSummary,
+  ) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Theme.of(context).primaryColor.withOpacity(0.8),
+            Theme.of(context).primaryColor.withOpacity(0.6),
+          ],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).primaryColor.withOpacity(0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            child: _buildCardContent(context, state, balanceSummary),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCardContent(
+    BuildContext context,
+    DashboardState state,
+    BalanceSummary balanceSummary,
+  ) {
     final theme = Theme.of(context);
     final cardTextColor = theme.colorScheme.onPrimary;
     final cardSubtleColor = theme.colorScheme.onPrimary.withOpacity(0.7);
+    final isVisible = state.isBalanceVisible;
 
     return Column(
       children: [
@@ -51,22 +135,15 @@ class _BalanceCardState extends State<BalanceCard>
                 isVisible ? Icons.visibility : Icons.visibility_off,
                 color: cardTextColor,
               ),
-              onPressed: () {
-                setState(() {
-                  _isBalanceVisible = !_isBalanceVisible;
-                  if (_isBalanceVisible) {
-                    _animationController.reverse();
-                  } else {
-                    _animationController.forward();
-                  }
-                });
-              },
+              onPressed: () => _toggleVisibility(context, isVisible),
             ),
           ],
         ),
         const SizedBox(height: 16),
         Text(
-          isVisible ? '\$65,080.00' : '• • • • • •',
+          isVisible
+              ? _currencyFormat.format(balanceSummary.totalBalance)
+              : '• • • • • •',
           style: TextStyle(
             color: cardTextColor,
             fontSize: 36,
@@ -80,9 +157,10 @@ class _BalanceCardState extends State<BalanceCard>
             _buildBalanceItem(
               icon: Icons.arrow_upward,
               label: 'Monthly Income',
-              amount: isVisible ? '\$118,000' : '• • • • • •',
+              amount: isVisible
+                  ? _currencyFormat.format(balanceSummary.monthlyIncome)
+                  : '• • • • • •',
               color: Colors.green,
-              isVisible: isVisible,
               textColor: cardTextColor,
               subtleColor: cardSubtleColor,
             ),
@@ -94,9 +172,10 @@ class _BalanceCardState extends State<BalanceCard>
             _buildBalanceItem(
               icon: Icons.arrow_downward,
               label: 'Monthly Expense',
-              amount: isVisible ? '\$52,920' : '• • • • • •',
+              amount: isVisible
+                  ? _currencyFormat.format(balanceSummary.monthlyExpense)
+                  : '• • • • • •',
               color: Colors.red,
-              isVisible: isVisible,
               textColor: cardTextColor,
               subtleColor: cardSubtleColor,
             ),
@@ -106,85 +185,33 @@ class _BalanceCardState extends State<BalanceCard>
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final primaryColor = theme.primaryColor;
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: AnimatedBuilder(
-          animation: _animationController,
-          builder: (context, child) {
-            final angle = _animationController.value * 3.14;
-            return Transform(
-              alignment: Alignment.center,
-              transform: Matrix4.identity()
-                ..setEntry(3, 2, 0.001)
-                ..rotateY(angle),
-              child: Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      primaryColor.withOpacity(0.9),
-                      primaryColor.withOpacity(0.7),
-                    ],
-                  ),
-                  border: Border.all(
-                    color: theme.colorScheme.onPrimary.withOpacity(0.2),
-                    width: 1.5,
-                  ),
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: primaryColor.withOpacity(0.3),
-                      blurRadius: 16,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: angle < 1.57
-                    ? _buildCardContent(isVisible: true)
-                    : Transform(
-                        alignment: Alignment.center,
-                        transform: Matrix4.identity()..rotateY(3.14),
-                        child: _buildCardContent(isVisible: false),
-                      ),
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-
   Widget _buildBalanceItem({
     required IconData icon,
     required String label,
     required String amount,
     required Color color,
-    required bool isVisible,
     required Color textColor,
     required Color subtleColor,
   }) {
     return Column(
       children: [
         Container(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.15),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: color.withOpacity(0.3), width: 1),
+            color: color.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(icon, color: color),
+          child: Icon(icon, color: color, size: 20),
         ),
         const SizedBox(height: 8),
-        Text(label, style: TextStyle(color: subtleColor, fontSize: 14)),
+        Text(
+          label,
+          style: TextStyle(
+            color: subtleColor,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
         const SizedBox(height: 4),
         Text(
           amount,
@@ -195,6 +222,21 @@ class _BalanceCardState extends State<BalanceCard>
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildSkeletonCard() {
+    return Container(
+      height: 200,
+      decoration: BoxDecoration(
+        color: Colors.grey[300],
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(Colors.grey[400]!),
+        ),
+      ),
     );
   }
 }

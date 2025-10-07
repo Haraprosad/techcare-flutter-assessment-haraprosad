@@ -146,12 +146,25 @@ class NetworkErrorHandler {
         messageKey = ErrorMessagesKey.unknown;
     }
 
+    // Safely convert response data to Map<String, dynamic>
+    Map<String, dynamic>? errorData;
+    final responseData = error.response?.data;
+    if (responseData != null) {
+      if (responseData is Map<String, dynamic>) {
+        errorData = responseData;
+      } else if (responseData is String) {
+        errorData = {'message': responseData};
+      } else {
+        errorData = {'data': responseData.toString()};
+      }
+    }
+
     return ApiCallFailureModel(
       code: statusCode,
       translatedMessage: _localizationService.translate(messageKey),
       technicalMessage: error.message,
       stackTrace: stackTrace,
-      errorData: error.response?.data,
+      errorData: errorData,
     );
   }
 
