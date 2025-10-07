@@ -26,29 +26,22 @@ abstract class BaseBloc<Event, State extends BaseBlocState>
     required Emitter<State> emit,
     bool showLoader = true,
   }) async {
-    try {
-      // Show loading state if needed
-      if (showLoader) {
-        emit(state.copyWith(isLoading: true, failure: null) as State);
-      }
+    // Show loading state if needed
+    if (showLoader) {
+      emit(state.copyWith(isLoading: true, failure: null) as State);
+    }
 
-      // Perform the API call
-      final result = await apiCall();
+    // Perform the API call
+    final result = await apiCall();
 
-      // Handle success response
-      if (result is ApiSuccess<T>) {
-        onSuccess(result.data);
-      }
-      // Handle error response
-      else if (result is ApiFailure<T>) {
-        onError?.call(result.failure);
-        emit(state.copyWith(failure: result.failure) as State);
-      }
-    } finally {
-      // Hide loading state
-      if (showLoader) {
-        emit(state.copyWith(isLoading: false) as State);
-      }
+    // Handle success response
+    if (result is ApiSuccess<T>) {
+      onSuccess(result.data);
+    }
+    // Handle error response
+    else if (result is ApiFailure<T>) {
+      onError?.call(result.failure);
+      emit(state.copyWith(isLoading: false, failure: result.failure) as State);
     }
   }
 }
