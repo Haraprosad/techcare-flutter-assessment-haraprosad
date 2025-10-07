@@ -8,6 +8,7 @@ import 'package:techcare_assessment_app/features/transactions/presentation/widge
 import 'package:techcare_assessment_app/features/transactions/presentation/widgets/transaction_list.dart';
 import 'package:techcare_assessment_app/features/transactions/presentation/widgets/transaction_empty_state.dart';
 import 'package:techcare_assessment_app/features/transactions/presentation/widgets/transaction_filter_bottom_sheet.dart';
+import 'package:techcare_assessment_app/core/widgets/offline_indicator_banner.dart';
 
 class TransactionsScreen extends StatelessWidget {
   const TransactionsScreen({super.key});
@@ -72,63 +73,65 @@ class _TransactionsScreenBodyState extends State<_TransactionsScreenBody> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Transactions'), elevation: 0),
-      body: Column(
-        children: [
-          const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: TransactionSearchBar(),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              children: [
-                TransactionFilterChip(
-                  onFilterPressed: () => _showFilterBottomSheet(context),
-                ),
-              ],
+    return WithOfflineIndicator(
+      child: Scaffold(
+        appBar: AppBar(title: const Text('Transactions'), elevation: 0),
+        body: Column(
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: TransactionSearchBar(),
             ),
-          ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: BlocBuilder<TransactionBloc, TransactionState>(
-              builder: (context, state) {
-                if (state.isLoading && !state.hasTransactions) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (!state.hasTransactions) {
-                  return TransactionEmptyState(
-                    hasActiveFilters: state.hasActiveFilters,
-                    onClearFilters: () {
-                      context.read<TransactionBloc>().add(
-                        const ClearFiltersEvent(),
-                      );
-                    },
-                  );
-                }
-                return RefreshIndicator(
-                  onRefresh: _onRefresh,
-                  child: TransactionList(
-                    scrollController: _scrollController,
-                    transactions: state.transactions,
-                    isLoadingMore: state.isLoadingMore,
-                    onRefresh: () {
-                      context.read<TransactionBloc>().add(
-                        const RefreshTransactionsEvent(),
-                      );
-                    },
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                children: [
+                  TransactionFilterChip(
+                    onFilterPressed: () => _showFilterBottomSheet(context),
                   ),
-                );
-              },
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _navigateToAddTransaction(context),
-        icon: const Icon(Icons.add),
-        label: const Text('Add Transaction'),
+            const SizedBox(height: 16),
+            Expanded(
+              child: BlocBuilder<TransactionBloc, TransactionState>(
+                builder: (context, state) {
+                  if (state.isLoading && !state.hasTransactions) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (!state.hasTransactions) {
+                    return TransactionEmptyState(
+                      hasActiveFilters: state.hasActiveFilters,
+                      onClearFilters: () {
+                        context.read<TransactionBloc>().add(
+                          const ClearFiltersEvent(),
+                        );
+                      },
+                    );
+                  }
+                  return RefreshIndicator(
+                    onRefresh: _onRefresh,
+                    child: TransactionList(
+                      scrollController: _scrollController,
+                      transactions: state.transactions,
+                      isLoadingMore: state.isLoadingMore,
+                      onRefresh: () {
+                        context.read<TransactionBloc>().add(
+                          const RefreshTransactionsEvent(),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () => _navigateToAddTransaction(context),
+          icon: const Icon(Icons.add),
+          label: const Text('Add Transaction'),
+        ),
       ),
     );
   }

@@ -6,6 +6,7 @@ import 'package:techcare_assessment_app/core/network/services/connection_manager
 import 'package:techcare_assessment_app/core/network/constants/network_constants.dart';
 import 'package:techcare_assessment_app/core/network/config/interceptors/connectivity_interceptor.dart';
 import 'package:techcare_assessment_app/core/network/config/interceptors/error_interceptor.dart';
+import 'package:techcare_assessment_app/core/network/config/interceptors/retry_interceptor.dart';
 import 'package:techcare_assessment_app/flavors/env_config.dart';
 
 /// Singleton service for configuring and providing a Dio HTTP client instance.
@@ -36,9 +37,13 @@ class DioClient {
       ),
     );
 
-    // Add interceptors for connectivity, error logging, and optional logging in debug mode.
+    // Add interceptors for connectivity, error logging, retry, and optional logging in debug mode.
     dio.interceptors.addAll([
-      // ConnectivityInterceptor(_connectionManager),
+      // ConnectivityInterceptor(_connectionManager), // Not needed - using reactive monitoring instead
+      RetryInterceptor(
+        connectionManager:
+            _connectionManager, // Provides instant offline detection
+      ), // Automatic retry with exponential backoff
       ErrorInterceptor(),
       // if (!kReleaseMode)
       //   LogInterceptor(

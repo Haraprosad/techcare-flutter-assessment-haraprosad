@@ -17,7 +17,16 @@
     "error_pre_call": "Error before API call",  
     "error_parsing": "Error parsing the response data",
 
+    "error_validation": "Validation error occurred",
+    "error_amount_invalid": "Invalid amount entered",
+    "error_duplicate_entry": "This entry already exists",
+    "error_resource_not_found": "Requested resource not found",
+    "error_insufficient_balance": "Insufficient balance",
+    "error_invalid_date_range": "Invalid date range selected",
+    "error_category_not_found": "Category not found",
+    "error_transaction_not_found": "Transaction not found",
+
     "try_again": "Try Again",
-    "home": "Home",
+    "home": "Home"
 
 }

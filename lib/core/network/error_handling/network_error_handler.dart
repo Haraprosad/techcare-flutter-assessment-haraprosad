@@ -119,32 +119,20 @@ class NetworkErrorHandler {
   }
 
   /// Handles HTTP status code errors.
+  /// Supports new API error format:
+  /// {
+  ///   "success": false,
+  ///   "error": {
+  ///     "code": "VALIDATION_ERROR",
+  ///     "message": "Transaction amount must be greater than zero",
+  ///     "field": "amount"
+  ///   }
+  /// }
   ApiCallFailureModel _handleBadResponse(
     DioException error, [
     StackTrace? stackTrace,
   ]) {
     final statusCode = error.response?.statusCode ?? ResponseCode.DEFAULT;
-    String messageKey;
-
-    switch (statusCode) {
-      case 400:
-        messageKey = ErrorMessagesKey.badRequest;
-        break;
-      case 401:
-        messageKey = ErrorMessagesKey.unauthorized;
-        break;
-      case 403:
-        messageKey = ErrorMessagesKey.forbidden;
-        break;
-      case 404:
-        messageKey = ErrorMessagesKey.notFound;
-        break;
-      case 500:
-        messageKey = ErrorMessagesKey.serverError;
-        break;
-      default:
-        messageKey = ErrorMessagesKey.unknown;
-    }
 
     // Safely convert response data to Map<String, dynamic>
     Map<String, dynamic>? errorData;
@@ -159,13 +147,103 @@ class NetworkErrorHandler {
       }
     }
 
+    // Extract error details from new API format
+    String? backendErrorCode;
+    String? backendMessage;
+    String? errorField;
+
+    if (errorData != null && errorData['error'] != null) {
+      final errorObject = errorData['error'] as Map<String, dynamic>;
+      backendErrorCode = errorObject['code'] as String?;
+      backendMessage = errorObject['message'] as String?;
+      errorField = errorObject['field'] as String?;
+    }
+
+    // Determine message key based on backend error code or HTTP status
+    String messageKey;
+    String translatedMessage;
+
+    if (backendErrorCode != null) {
+      // Try to map backend error code to localized message
+      messageKey = _getMessageKeyFromErrorCode(backendErrorCode);
+      translatedMessage = _localizationService.translate(messageKey);
+
+      // If translation returns the same key (not found), use backend message
+      if (translatedMessage == messageKey && backendMessage != null) {
+        translatedMessage = backendMessage;
+      }
+
+      // Append field name if available for better context
+      if (errorField != null && errorField.isNotEmpty) {
+        translatedMessage = '$translatedMessage (Field: $errorField)';
+      }
+    } else {
+      // Fallback to HTTP status code mapping
+      messageKey = _getMessageKeyFromStatusCode(statusCode);
+      translatedMessage = _localizationService.translate(messageKey);
+
+      // Use backend message as fallback if available
+      if (backendMessage != null) {
+        translatedMessage = backendMessage;
+      }
+    }
+
     return ApiCallFailureModel(
       code: statusCode,
-      translatedMessage: _localizationService.translate(messageKey),
+      translatedMessage: translatedMessage,
       technicalMessage: error.message,
       stackTrace: stackTrace,
       errorData: errorData,
+      errorCode: backendErrorCode,
+      field: errorField,
+      backendMessage: backendMessage,
     );
+  }
+
+  /// Maps backend error code to localized message key
+  String _getMessageKeyFromErrorCode(String errorCode) {
+    switch (errorCode.toUpperCase()) {
+      case 'VALIDATION_ERROR':
+        return ErrorMessagesKey.validationError;
+      case 'AMOUNT_INVALID':
+      case 'INVALID_AMOUNT':
+        return ErrorMessagesKey.amountInvalid;
+      case 'DUPLICATE_ENTRY':
+      case 'ALREADY_EXISTS':
+        return ErrorMessagesKey.duplicateEntry;
+      case 'RESOURCE_NOT_FOUND':
+      case 'NOT_FOUND':
+        return ErrorMessagesKey.resourceNotFound;
+      case 'INSUFFICIENT_BALANCE':
+        return ErrorMessagesKey.insufficientBalance;
+      case 'INVALID_DATE_RANGE':
+        return ErrorMessagesKey.invalidDateRange;
+      case 'CATEGORY_NOT_FOUND':
+        return ErrorMessagesKey.categoryNotFound;
+      case 'TRANSACTION_NOT_FOUND':
+        return ErrorMessagesKey.transactionNotFound;
+      default:
+        return errorCode
+            .toLowerCase(); // Return as-is, will use backend message
+    }
+  }
+
+  /// Maps HTTP status code to message key (fallback)
+  String _getMessageKeyFromStatusCode(int statusCode) {
+    switch (statusCode) {
+      case 400:
+        return ErrorMessagesKey.badRequest;
+      case 401:
+        return ErrorMessagesKey.unauthorized;
+      case 403:
+        return ErrorMessagesKey.forbidden;
+      case 404:
+        return ErrorMessagesKey.notFound;
+      case 500:
+        return ErrorMessagesKey.serverError;
+      default:
+        return ErrorMessagesKey.unknown;
+    }
   }
 
   ApiCallFailureModel _handleCustomException(

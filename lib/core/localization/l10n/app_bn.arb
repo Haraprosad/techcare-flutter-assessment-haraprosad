@@ -16,7 +16,16 @@
 
     "error_pre_call": "এপিআই কলের আগে ত্রুটি", 
     "error_parsing": "প্রতিক্রিয়া ডেটা পার্স করার সময় ত্রুটি",
+
+    "error_validation": "যাচাইকরণ ত্রুটি ঘটেছে",
+    "error_amount_invalid": "অবৈধ পরিমাণ প্রবেশ করানো হয়েছে",
+    "error_duplicate_entry": "এই এন্ট্রি ইতিমধ্যে বিদ্যমান",
+    "error_resource_not_found": "অনুরোধ করা রিসোর্স পাওয়া যায়নি",
+    "error_insufficient_balance": "অপর্যাপ্ত ব্যালেন্স",
+    "error_invalid_date_range": "অবৈধ তারিখ পরিসীমা নির্বাচন করা হয়েছে",
+    "error_category_not_found": "বিভাগ পাওয়া যায়নি",
+    "error_transaction_not_found": "লেনদেন পাওয়া যায়নি",
     
     "try_again": "আবার চেষ্টা করুন",
-    "home": "হোম",
+    "home": "হোম"
 }

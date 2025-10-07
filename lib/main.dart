@@ -11,6 +11,7 @@ import 'package:techcare_assessment_app/core/theme/base/app_theme.dart';
 import 'package:techcare_assessment_app/core/theme/bloc/theme_bloc.dart';
 import 'package:techcare_assessment_app/core/theme/constants/breakpoints.dart';
 import 'package:techcare_assessment_app/features/dashboard/presentation/bloc/dashboard_bloc.dart';
+import 'package:techcare_assessment_app/core/network/cubit/connectivity_cubit.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -37,6 +38,9 @@ class MyApp extends StatelessWidget {
                       sl<ThemeBloc>()..add(const InitializeTheme()),
                 ),
                 BlocProvider<LocaleBloc>(create: (context) => sl<LocaleBloc>()),
+                BlocProvider<ConnectivityCubit>(
+                  create: (context) => sl<ConnectivityCubit>(),
+                ),
                 BlocProvider<DashboardBloc>(
                   create: (context) =>
                       sl<DashboardBloc>()

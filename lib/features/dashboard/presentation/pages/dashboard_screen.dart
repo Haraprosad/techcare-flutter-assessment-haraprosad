@@ -11,6 +11,7 @@ import 'package:techcare_assessment_app/features/transactions/presentation/pages
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:techcare_assessment_app/core/theme/constants/breakpoints.dart';
 import 'package:techcare_assessment_app/core/widgets/responsive_layout_builder.dart';
+import 'package:techcare_assessment_app/core/widgets/offline_indicator_banner.dart';
 
 /// Dashboard Screen - Main home screen
 ///
@@ -63,53 +64,55 @@ class _DashboardScreenViewState extends State<_DashboardScreenView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: BlocConsumer<DashboardBloc, DashboardState>(
-        listenWhen: (previous, current) {
-          // Only listen when error state changes to prevent multiple snackbars
-          return previous.failure != current.failure &&
-              current.hasError &&
-              !current.hasData;
-        },
-        listener: (context, state) {
-          // Show error snackbar if there's an error and no cached data
-          if (state.hasError && !state.hasData) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  state.failure?.translatedMessage ?? 'An error occurred',
+    return WithOfflineIndicator(
+      child: Scaffold(
+        body: BlocConsumer<DashboardBloc, DashboardState>(
+          listenWhen: (previous, current) {
+            // Only listen when error state changes to prevent multiple snackbars
+            return previous.failure != current.failure &&
+                current.hasError &&
+                !current.hasData;
+          },
+          listener: (context, state) {
+            // Show error snackbar if there's an error and no cached data
+            if (state.hasError && !state.hasData) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    state.failure?.translatedMessage ?? 'An error occurred',
+                  ),
+                  action: SnackBarAction(
+                    label: 'Retry',
+                    onPressed: () {
+                      context.read<DashboardBloc>().add(
+                        const LoadDashboardDataEvent(),
+                      );
+                    },
+                  ),
                 ),
-                action: SnackBarAction(
-                  label: 'Retry',
-                  onPressed: () {
-                    context.read<DashboardBloc>().add(
-                      const LoadDashboardDataEvent(),
-                    );
-                  },
-                ),
-              ),
+              );
+            }
+          },
+          builder: (context, state) {
+            // Show loading state on initial load
+            if (state.isLoading && !state.hasData) {
+              return _buildLoadingState();
+            }
+
+            // Show empty state if no data
+            if (state.isEmpty) {
+              return _buildEmptyState(context);
+            }
+
+            // Show main content
+            return ResponsiveLayoutBuilder(
+              mobile: _buildMobileLayout(context, state),
+              tablet: _buildTabletLayout(context, state),
             );
-          }
-        },
-        builder: (context, state) {
-          // Show loading state on initial load
-          if (state.isLoading && !state.hasData) {
-            return _buildLoadingState();
-          }
-
-          // Show empty state if no data
-          if (state.isEmpty) {
-            return _buildEmptyState(context);
-          }
-
-          // Show main content
-          return ResponsiveLayoutBuilder(
-            mobile: _buildMobileLayout(context, state),
-            tablet: _buildTabletLayout(context, state),
-          );
-        },
+          },
+        ),
+        floatingActionButton: _buildSpeedDial(context),
       ),
-      floatingActionButton: _buildSpeedDial(context),
     );
   }
 
