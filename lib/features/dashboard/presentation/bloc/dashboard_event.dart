@@ -13,6 +13,11 @@ class LoadDashboardDataEvent extends DashboardEvent {
   const LoadDashboardDataEvent();
 }
 
+/// Load dashboard data only if cache is stale (older than 5 minutes) or empty
+class LoadDashboardDataIfNeededEvent extends DashboardEvent {
+  const LoadDashboardDataIfNeededEvent();
+}
+
 /// Refresh dashboard data (pull-to-refresh)
 class RefreshDashboardDataEvent extends DashboardEvent {
   const RefreshDashboardDataEvent();

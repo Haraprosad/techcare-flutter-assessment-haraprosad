@@ -1,0 +1,4 @@
+# API configuration
+BASE_URL=mock://dashboard
+IMAGE_BASE_URL=https://example.com/images
+# Using MockDashboardService - no external server required

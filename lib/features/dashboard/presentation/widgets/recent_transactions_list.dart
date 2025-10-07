@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class RecentTransactionsList extends StatelessWidget {
   const RecentTransactionsList({super.key});
@@ -13,21 +14,21 @@ class RecentTransactionsList extends StatelessWidget {
           background: Container(
             color: Colors.red,
             alignment: Alignment.centerRight,
-            padding: const EdgeInsets.only(right: 16),
+            padding: EdgeInsets.only(right: 16.w),
             child: const Icon(Icons.delete, color: Colors.white),
           ),
           secondaryBackground: Container(
             color: Colors.blue,
             alignment: Alignment.centerLeft,
-            padding: const EdgeInsets.only(left: 16),
+            padding: EdgeInsets.only(left: 16.w),
             child: const Icon(Icons.edit, color: Colors.white),
           ),
           child: ListTile(
             leading: Container(
-              padding: const EdgeInsets.all(8),
+              padding: EdgeInsets.all(8.w),
               decoration: BoxDecoration(
                 color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(8.r),
               ),
               child: Icon(
                 index % 2 == 0 ? Icons.shopping_bag : Icons.fastfood,

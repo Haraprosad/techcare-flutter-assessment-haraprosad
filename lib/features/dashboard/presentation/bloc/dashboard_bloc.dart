@@ -25,7 +25,7 @@ part 'dashboard_state.dart';
 /// - Category-wise transaction filtering
 /// - Offline support with cached data
 /// - Real-time notification count updates
-@injectable
+@lazySingleton
 class DashboardBloc extends BaseBloc<DashboardEvent, DashboardState> {
   final GetDashboardDataUseCase _getDashboardDataUseCase;
   final RefreshDashboardDataUseCase _refreshDashboardDataUseCase;
@@ -37,6 +37,7 @@ class DashboardBloc extends BaseBloc<DashboardEvent, DashboardState> {
     this._getCachedDashboardDataUseCase,
   ) : super(const DashboardState()) {
     on<LoadDashboardDataEvent>(_onLoadDashboardData);
+    on<LoadDashboardDataIfNeededEvent>(_onLoadDashboardDataIfNeeded);
     on<RefreshDashboardDataEvent>(_onRefreshDashboardData);
     on<LoadCachedDataEvent>(_onLoadCachedData);
     on<ToggleBalanceVisibilityEvent>(_onToggleBalanceVisibility);
@@ -76,6 +77,27 @@ class DashboardBloc extends BaseBloc<DashboardEvent, DashboardState> {
       emit: emit,
       showLoader: true,
     );
+  }
+
+  /// Load dashboard data only if needed (cache is stale or empty)
+  Future<void> _onLoadDashboardDataIfNeeded(
+    LoadDashboardDataIfNeededEvent event,
+    Emitter<DashboardState> emit,
+  ) async {
+    AppLogger.i(message: 'Checking if dashboard data needs refresh...');
+
+    // If we have fresh data (less than 5 minutes old), don't reload
+    if (state.hasData && !state.needsRefresh) {
+      AppLogger.i(
+        message:
+            'Dashboard data is fresh (${DateTime.now().difference(state.lastUpdated!).inMinutes} minutes old), skipping reload',
+      );
+      return;
+    }
+
+    // If cache is stale or empty, load data
+    AppLogger.i(message: 'Dashboard data is stale or empty, loading...');
+    add(const LoadDashboardDataEvent());
   }
 
   /// Refresh dashboard data (pull-to-refresh)

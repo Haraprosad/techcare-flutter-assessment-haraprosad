@@ -2,11 +2,13 @@ import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:techcare_assessment_app/core/di/injection.dart';
 import 'package:techcare_assessment_app/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'package:techcare_assessment_app/features/dashboard/presentation/widgets/balance_card.dart';
 import 'package:techcare_assessment_app/features/dashboard/presentation/widgets/recent_transactions_list.dart';
 import 'package:techcare_assessment_app/features/dashboard/presentation/widgets/spending_overview.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:techcare_assessment_app/core/theme/constants/breakpoints.dart';
+import 'package:techcare_assessment_app/core/widgets/responsive_layout_builder.dart';
 
 /// Dashboard Screen - Main home screen
 ///
@@ -22,11 +24,9 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) =>
-          sl<DashboardBloc>()..add(const LoadDashboardDataEvent()),
-      child: const _DashboardScreenView(),
-    );
+    // Trigger data load only if needed (data is stale or empty)
+    context.read<DashboardBloc>().add(const LoadDashboardDataIfNeededEvent());
+    return const _DashboardScreenView();
   }
 }
 
@@ -101,49 +101,124 @@ class _DashboardScreenViewState extends State<_DashboardScreenView> {
           }
 
           // Show main content
-          return RefreshIndicator(
-            onRefresh: () async {
-              context.read<DashboardBloc>().add(
-                const RefreshDashboardDataEvent(),
-              );
-              // Wait for refresh to complete
-              await context.read<DashboardBloc>().stream.firstWhere(
-                (state) => !state.isRefreshing,
-              );
-            },
-            child: CustomScrollView(
-              controller: _scrollController,
-              physics: const AlwaysScrollableScrollPhysics(),
-              slivers: [
-                _buildAppBar(context, state),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: [
-                        // Balance Card with visibility toggle
-                        const BalanceCard(),
-                        const SizedBox(height: 24),
-
-                        // Spending Overview with category filtering
-                        const SpendingOverview(),
-                        const SizedBox(height: 24),
-
-                        // Recent Transactions Header
-                        _buildRecentTransactionsHeader(context),
-                      ],
-                    ),
-                  ),
-                ),
-
-                // Recent Transactions List
-                const RecentTransactionsList(),
-              ],
-            ),
+          return ResponsiveLayoutBuilder(
+            mobile: _buildMobileLayout(context, state),
+            tablet: _buildTabletLayout(context, state),
           );
         },
       ),
       floatingActionButton: _buildSpeedDial(context),
+    );
+  }
+
+  /// Mobile layout (portrait)
+  Widget _buildMobileLayout(BuildContext context, DashboardState state) {
+    return RefreshIndicator(
+      onRefresh: () async {
+        context.read<DashboardBloc>().add(const RefreshDashboardDataEvent());
+        // Wait for refresh to complete
+        await context.read<DashboardBloc>().stream.firstWhere(
+          (state) => !state.isRefreshing,
+        );
+      },
+      child: CustomScrollView(
+        controller: _scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          _buildAppBar(context, state),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.all(16.w),
+              child: Column(
+                children: [
+                  // Balance Card with visibility toggle
+                  const BalanceCard(),
+                  SizedBox(height: 24.h),
+
+                  // Spending Overview with category filtering
+                  const SpendingOverview(),
+                  SizedBox(height: 24.h),
+
+                  // Recent Transactions Header
+                  _buildRecentTransactionsHeader(context),
+                ],
+              ),
+            ),
+          ),
+
+          // Recent Transactions List
+          const RecentTransactionsList(),
+        ],
+      ),
+    );
+  }
+
+  /// Tablet layout (grid layout for better space utilization)
+  Widget _buildTabletLayout(BuildContext context, DashboardState state) {
+    return RefreshIndicator(
+      onRefresh: () async {
+        context.read<DashboardBloc>().add(const RefreshDashboardDataEvent());
+        await context.read<DashboardBloc>().stream.firstWhere(
+          (state) => !state.isRefreshing,
+        );
+      },
+      child: CustomScrollView(
+        controller: _scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          _buildAppBar(context, state),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.all(context.responsiveHPadding),
+              child: context.isLandscape
+                  ? _buildTabletLandscapeLayout(context)
+                  : _buildTabletPortraitLayout(context),
+            ),
+          ),
+
+          // Recent Transactions Header
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: context.responsiveHPadding,
+                vertical: 16.h,
+              ),
+              child: _buildRecentTransactionsHeader(context),
+            ),
+          ),
+
+          // Recent Transactions List
+          const RecentTransactionsList(),
+        ],
+      ),
+    );
+  }
+
+  /// Tablet portrait: 2-column grid
+  Widget _buildTabletPortraitLayout(BuildContext context) {
+    return Column(
+      children: [
+        // Balance Card (full width)
+        const BalanceCard(),
+        SizedBox(height: 24.h),
+
+        // Spending Overview (full width)
+        const SpendingOverview(),
+      ],
+    );
+  }
+
+  /// Tablet landscape: side-by-side layout
+  Widget _buildTabletLandscapeLayout(BuildContext context) {
+    return Column(
+      children: [
+        // Balance Card (full width at top)
+        const BalanceCard(),
+        SizedBox(height: 24.h),
+
+        // Spending Overview
+        const SpendingOverview(),
+      ],
     );
   }
 
@@ -152,7 +227,7 @@ class _DashboardScreenViewState extends State<_DashboardScreenView> {
     final parallaxOffset = _scrollOffset * 0.5;
 
     return SliverAppBar(
-      expandedHeight: 120,
+      expandedHeight: 120.h,
       floating: true,
       pinned: true,
       flexibleSpace: FlexibleSpaceBar(
@@ -182,10 +257,10 @@ class _DashboardScreenViewState extends State<_DashboardScreenView> {
       actions: [
         // Notification badge
         badges.Badge(
-          position: badges.BadgePosition.topEnd(top: 8, end: 8),
+          position: badges.BadgePosition.topEnd(top: 8.h, end: 8.w),
           badgeContent: Text(
             '${state.notificationCount}',
-            style: const TextStyle(color: Colors.white, fontSize: 10),
+            style: TextStyle(color: Colors.white, fontSize: 10.sp),
           ),
           showBadge: state.notificationCount > 0,
           child: IconButton(
@@ -195,11 +270,11 @@ class _DashboardScreenViewState extends State<_DashboardScreenView> {
             },
           ),
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: 8.w),
 
         // User profile avatar
         Padding(
-          padding: const EdgeInsets.only(right: 16.0),
+          padding: EdgeInsets.only(right: 16.w),
           child: GestureDetector(
             onTap: () {
               // TODO: Navigate to profile screen
@@ -222,9 +297,9 @@ class _DashboardScreenViewState extends State<_DashboardScreenView> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text(
+        Text(
           'Recent Transactions',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
         ),
         TextButton(
           onPressed: () {
@@ -283,7 +358,7 @@ class _DashboardScreenViewState extends State<_DashboardScreenView> {
     return CustomScrollView(
       slivers: [
         SliverAppBar(
-          expandedHeight: 120,
+          expandedHeight: 120.h,
           floating: true,
           pinned: true,
           flexibleSpace: FlexibleSpaceBar(
@@ -301,13 +376,13 @@ class _DashboardScreenViewState extends State<_DashboardScreenView> {
         ),
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(16.w),
             child: Column(
               children: [
                 _buildSkeletonCard(height: 180),
-                const SizedBox(height: 24),
+                SizedBox(height: 24.h),
                 _buildSkeletonCard(height: 200),
-                const SizedBox(height: 24),
+                SizedBox(height: 24.h),
                 _buildSkeletonCard(height: 300),
               ],
             ),
@@ -323,7 +398,7 @@ class _DashboardScreenViewState extends State<_DashboardScreenView> {
       height: height,
       decoration: BoxDecoration(
         color: Colors.grey[300],
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
       ),
       child: Center(
         child: CircularProgressIndicator(
@@ -341,24 +416,24 @@ class _DashboardScreenViewState extends State<_DashboardScreenView> {
         children: [
           Icon(
             Icons.account_balance_wallet_outlined,
-            size: 80,
+            size: 80.sp,
             color: Colors.grey[400],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           Text(
             'No dashboard data available',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 18.sp,
               color: Colors.grey[600],
               fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Text(
             'Pull down to refresh',
-            style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+            style: TextStyle(fontSize: 14.sp, color: Colors.grey[500]),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24.h),
           ElevatedButton.icon(
             onPressed: () {
               context.read<DashboardBloc>().add(const LoadDashboardDataEvent());
