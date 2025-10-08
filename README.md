@@ -275,44 +275,67 @@ Watch the full app demonstration on YouTube:
 <table>
   <tr>
     <td align="center">
-      <img src="https://github.com/user-attachments/assets/2d7853ea-0c7f-4bec-8154-b08e6b77b202" width="250" alt="Dashboard Light Mode"/>
+      <img src="https://github.com/user-attachments/assets/51be6b7b-fcd4-4c9c-b3ee-107b3144d506" width="250" alt="Dashboard Light Mode"/>
       <br />
       <b>Dashboard (Light)</b>
       <br />
       <sub>Balance summary, recent transactions</sub>
     </td>
     <td align="center">
-      <img src="https://github.com/user-attachments/assets/633ff505-f251-4d65-a6d5-5cfaf65401e9" width="250" alt="Dashboard Dark Mode"/>
+      <img src="https://github.com/user-attachments/assets/8cadd83d-823f-4d8a-8ad1-cbc2ac23b140" width="250" alt="Dashboard Lower Light"/>
       <br />
-      <b>Dashboard (Dark)</b>
+      <b>Dashboard Details</b>
       <br />
-      <sub>Theme switching demonstration</sub>
+      <sub>Category breakdown & statistics</sub>
     </td>
     <td align="center">
-      <img src="https://github.com/user-attachments/assets/b8f3db54-24b3-47f1-a601-afd11f05f9c4" width="250" alt="Transaction List Dark"/>
+      <img src="https://github.com/user-attachments/assets/5b572db1-4a1d-48b2-bf08-a6cc3dc1759f" width="250" alt="Recent Transactions"/>
       <br />
-      <b>Transactions (Dark)</b>
+      <b>Recent Transactions</b>
       <br />
-      <sub>List with pull-to-refresh</sub>
+      <sub>Quick overview with details</sub>
     </td>
   </tr>
   <tr>
     <td align="center">
-      <img src="https://github.com/user-attachments/assets/a1d577a0-283d-4829-b051-60438897f1bb" width="250" alt="Add Transaction"/>
+      <img src="https://github.com/user-attachments/assets/2d416817-c94e-4bde-a4bc-9d927aeb254e" width="250" alt="Transactions List"/>
+      <br />
+      <b>All Transactions</b>
+      <br />
+      <sub>Complete transaction history</sub>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/8a119dec-4422-4f43-b6f0-b26163a856f5" width="250" alt="Transaction Details"/>
+      <br />
+      <b>Transaction Details</b>
+      <br />
+      <sub>Expandable item view</sub>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/fed578e4-f99d-4f09-9c72-b6aef8f922e9" width="250" alt="Add Transaction"/>
       <br />
       <b>Add Transaction</b>
       <br />
       <sub>Form with validation</sub>
     </td>
+  </tr>
+  <tr>
     <td align="center">
-      <img src="https://github.com/user-attachments/assets/d7f93258-2e91-40aa-a512-6beb7aca6ec6" width="250" alt="Analytics Dark"/>
+      <img src="https://github.com/user-attachments/assets/d5c0aed8-ded2-449b-ac1a-f02e6de1f6ff" width="250" alt="Category Selection"/>
       <br />
-      <b>Analytics (Dark)</b>
+      <b>Category Selection</b>
       <br />
-      <sub>Charts and spending trends</sub>
+      <sub>Choose transaction category</sub>
     </td>
     <td align="center">
-      <img src="https://github.com/user-attachments/assets/efae6e64-47b6-4be0-8072-9bcaceba568d" width="250" alt="Transaction Filter"/>
+      <img src="https://github.com/user-attachments/assets/95298b31-3cd9-47b7-bcd3-0d6afc56dddd" width="250" alt="Date Picker"/>
+      <br />
+      <b>Date Picker</b>
+      <br />
+      <sub>Select transaction date</sub>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/f05d4bca-9d1d-42bb-a358-ec707ef3ac95" width="250" alt="Transaction Filter"/>
       <br />
       <b>Advanced Filters</b>
       <br />
@@ -321,21 +344,44 @@ Watch the full app demonstration on YouTube:
   </tr>
   <tr>
     <td align="center">
-      <img src="https://github.com/user-attachments/assets/d88bba6f-029b-4ff1-b829-2cbfe1652fe3" width="250" alt="Transaction Details"/>
+      <img src="https://github.com/user-attachments/assets/5ad8eac1-ee68-4557-9b96-449376646ec7" width="250" alt="Filter Applied"/>
       <br />
-      <b>Transaction Details</b>
+      <b>Filtered Results</b>
       <br />
-      <sub>Expandable item view</sub>
+      <sub>Transactions after filter</sub>
     </td>
     <td align="center">
-      <img src="https://github.com/user-attachments/assets/f7bcb60f-8ceb-412d-a9c5-3dce84becfe6" width="250" alt="Filter Dialog"/>
+      <img src="https://github.com/user-attachments/assets/51f321d6-91c1-4a12-901c-8bd113dd93de" width="250" alt="Analytics"/>
       <br />
-      <b>Filter Options</b>
+      <b>Analytics</b>
       <br />
-      <sub>Multi-criteria filtering</sub>
+      <sub>Spending trends & charts</sub>
     </td>
     <td align="center">
-      <img src="https://github.com/user-attachments/assets/5892142b-9cb9-4957-b70f-d0d809988253" width="250" alt="Offline Mode"/>
+      <img src="https://github.com/user-attachments/assets/c6702ba8-a69b-407c-81be-1fe07b2a0c86" width="250" alt="Budget Progress"/>
+      <br />
+      <b>Budget Progress</b>
+      <br />
+      <sub>Category budgets & utilization</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/d54583a2-17b3-42b2-9315-0425341bff71" width="250" alt="Delete Confirmation"/>
+      <br />
+      <b>Delete Confirmation</b>
+      <br />
+      <sub>User-friendly dialogs</sub>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/69e866eb-beef-403d-864e-3dd0826ed102" width="250" alt="Settings"/>
+      <br />
+      <b>Settings</b>
+      <br />
+      <sub>Theme & language options</sub>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/749fd0c9-844b-480e-9f30-0eb837bdd40b" width="250" alt="Offline Mode"/>
       <br />
       <b>Offline Mode</b>
       <br />
@@ -344,16 +390,143 @@ Watch the full app demonstration on YouTube:
   </tr>
 </table>
 
+---
+
+### Dark Theme Screenshots
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/d170b77f-1bab-4f84-adfe-17e9f3633ae0" width="250" alt="Dashboard Dark Mode"/>
+      <br />
+      <b>Dashboard (Dark)</b>
+      <br />
+      <sub>Balance summary with dark theme</sub>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/880c1e6b-bf52-468f-baad-caab948add25" width="250" alt="Dashboard Lower Dark"/>
+      <br />
+      <b>Dashboard Details (Dark)</b>
+      <br />
+      <sub>Category breakdown & statistics</sub>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/4cfa41ef-e634-4c45-b0f9-c39497cd3117" width="250" alt="Recent Transactions Dark"/>
+      <br />
+      <b>Recent Transactions (Dark)</b>
+      <br />
+      <sub>Quick overview with details</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/b64cb339-9325-47f6-9cad-74a5862de544" width="250" alt="Transactions List Dark"/>
+      <br />
+      <b>All Transactions (Dark)</b>
+      <br />
+      <sub>Complete transaction history</sub>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/1163a479-070b-4f04-a7c3-8269ed987a18" width="250" alt="Transaction Details Dark"/>
+      <br />
+      <b>Transaction Details (Dark)</b>
+      <br />
+      <sub>Expandable item view</sub>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/f1b01467-1c15-4647-9be0-01bd49625044" width="250" alt="Add Transaction Dark"/>
+      <br />
+      <b>Add Transaction (Dark)</b>
+      <br />
+      <sub>Form with validation</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/13b0c0e2-8751-4f89-b1ac-e444e3ba71d8" width="250" alt="Category Selection Dark"/>
+      <br />
+      <b>Category Selection (Dark)</b>
+      <br />
+      <sub>Choose transaction category</sub>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/2729d49e-3444-4f67-bdaa-96ad99b92264" width="250" alt="Date Picker Dark"/>
+      <br />
+      <b>Date Picker (Dark)</b>
+      <br />
+      <sub>Select transaction date</sub>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/cbbb3640-5ff3-4aa5-ad31-cf926baa96fe" width="250" alt="Transaction Filter Dark"/>
+      <br />
+      <b>Advanced Filters (Dark)</b>
+      <br />
+      <sub>Filter by category, type & date</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/c816c62a-46be-4ff8-86d0-1d760a3fa43e" width="250" alt="Filter Applied Dark"/>
+      <br />
+      <b>Filtered Results (Dark)</b>
+      <br />
+      <sub>Transactions after filter</sub>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/aaf0ef57-bc3b-49f3-a4a7-afa2b851dae2" width="250" alt="Analytics Dark"/>
+      <br />
+      <b>Analytics (Dark)</b>
+      <br />
+      <sub>Spending trends & charts</sub>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/d6f55103-1ca9-4bba-a635-026571dda410" width="250" alt="Budget Progress Dark"/>
+      <br />
+      <b>Budget Progress (Dark)</b>
+      <br />
+      <sub>Category budgets & utilization</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/8a64dd71-31e2-48a3-8248-38dcdaf123a7" width="250" alt="Delete Confirmation Dark"/>
+      <br />
+      <b>Delete Confirmation (Dark)</b>
+      <br />
+      <sub>User-friendly dialogs</sub>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/a7419f83-f36f-428e-8e0c-1b60fc63c233" width="250" alt="Settings Dark"/>
+      <br />
+      <b>Settings (Dark)</b>
+      <br />
+      <sub>Theme & language options</sub>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/35c04e6c-186b-4921-aa01-10e7fe4b0f87" width="250" alt="Offline Mode Dark"/>
+      <br />
+      <b>Offline Mode (Dark)</b>
+      <br />
+      <sub>Full offline functionality</sub>
+    </td>
+  </tr>
+</table>
+
+---
+
 ### Key Features Demonstrated
 
-✅ **Responsive Design** - Adapts to different screen sizes
-✅ **Dark Mode** - Complete theme switching with smooth transitions
+✅ **Comprehensive UI Coverage** - 30 screenshots showing light & dark themes
+✅ **Complete User Journey** - From dashboard to transactions to analytics
+✅ **Dark Mode Excellence** - Beautiful dark theme with proper contrast
 ✅ **Advanced Filters** - Multi-criteria filtering for transactions
 ✅ **Offline Support** - Works without internet with auto-sync
 ✅ **Data Visualization** - Interactive charts and spending trends
 ✅ **Budget Tracking** - Real-time budget utilization monitoring
 ✅ **Clean UI** - Modern Material Design 3 interface
 ✅ **Smooth Animations** - 60 FPS performance throughout
+✅ **Form Validation** - User-friendly input with category & date pickers
+✅ **Responsive Design** - Adapts to different screen sizes
 
 > **Note**: Screenshots are hosted on GitHub for optimal loading and accessibility
 
