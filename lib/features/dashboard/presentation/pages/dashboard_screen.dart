@@ -43,6 +43,7 @@ class _DashboardScreenView extends StatefulWidget {
 class _DashboardScreenViewState extends State<_DashboardScreenView> {
   final ScrollController _scrollController = ScrollController();
   double _scrollOffset = 0.0;
+  DateTime? _lastScrollUpdate;
 
   @override
   void initState() {
@@ -57,7 +58,16 @@ class _DashboardScreenViewState extends State<_DashboardScreenView> {
     super.dispose();
   }
 
+  /// Throttled scroll listener for parallax effect performance
   void _onScroll() {
+    final now = DateTime.now();
+    // Throttle to 16ms (~60fps) for smooth parallax without excessive redraws
+    if (_lastScrollUpdate != null &&
+        now.difference(_lastScrollUpdate!).inMilliseconds < 16) {
+      return;
+    }
+
+    _lastScrollUpdate = now;
     setState(() {
       _scrollOffset = _scrollController.offset;
     });

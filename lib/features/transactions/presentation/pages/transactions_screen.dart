@@ -37,6 +37,7 @@ class _TransactionsScreenBody extends StatefulWidget {
 
 class _TransactionsScreenBodyState extends State<_TransactionsScreenBody> {
   final ScrollController _scrollController = ScrollController();
+  DateTime? _lastScrollEvent;
 
   @override
   void initState() {
@@ -60,10 +61,19 @@ class _TransactionsScreenBodyState extends State<_TransactionsScreenBody> {
   }
 
   /// Triggers pagination when user scrolls near the bottom (90% down)
+  /// Throttled to prevent excessive event firing during rapid scrolling
   void _onScroll() {
-    if (_isBottom) {
-      context.read<TransactionBloc>().add(const LoadMoreTransactionsEvent());
+    if (!_isBottom) return;
+
+    // Throttle scroll events to 100ms
+    final now = DateTime.now();
+    if (_lastScrollEvent != null &&
+        now.difference(_lastScrollEvent!).inMilliseconds < 100) {
+      return;
     }
+
+    _lastScrollEvent = now;
+    context.read<TransactionBloc>().add(const LoadMoreTransactionsEvent());
   }
 
   /// Checks if user has scrolled to 90% of the list (trigger point for loading more)

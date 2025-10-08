@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'dart:async';
 
 /// Custom amount input widget with currency formatting
 class AmountInputField extends StatefulWidget {
@@ -24,6 +25,9 @@ class AmountInputField extends StatefulWidget {
 class _AmountInputFieldState extends State<AmountInputField> {
   final TextEditingController _controller = TextEditingController();
   final NumberFormat _currencyFormatter = NumberFormat('#,##0.00', 'en_US');
+  Timer? _debounceTimer;
+  final FocusNode _focusNode = FocusNode();
+  bool _isEditing = false;
 
   @override
   void initState() {
@@ -31,12 +35,35 @@ class _AmountInputFieldState extends State<AmountInputField> {
     if (widget.initialAmount != null) {
       _controller.text = _currencyFormatter.format(widget.initialAmount);
     }
+
+    // Add focus listener to format on blur and handle focus
+    _focusNode.addListener(() {
+      if (_focusNode.hasFocus) {
+        _isEditing = true;
+        // When focused, remove formatting to show raw number
+        final cleanValue = _controller.text
+            .replaceAll(',', '')
+            .replaceAll(' ', '');
+        if (cleanValue.isNotEmpty) {
+          _controller.text = cleanValue;
+          // Move cursor to end
+          _controller.selection = TextSelection.fromPosition(
+            TextPosition(offset: _controller.text.length),
+          );
+        }
+      } else {
+        _isEditing = false;
+        _formatOnBlur();
+      }
+    });
   }
 
   @override
   void didUpdateWidget(AmountInputField oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.initialAmount != oldWidget.initialAmount &&
+    // Only update if not currently editing and initial amount changed
+    if (!_isEditing &&
+        widget.initialAmount != oldWidget.initialAmount &&
         widget.initialAmount != null) {
       _controller.text = _currencyFormatter.format(widget.initialAmount);
     }
@@ -45,7 +72,19 @@ class _AmountInputFieldState extends State<AmountInputField> {
   @override
   void dispose() {
     _controller.dispose();
+    _focusNode.dispose();
+    _debounceTimer?.cancel();
     super.dispose();
+  }
+
+  void _formatOnBlur() {
+    final cleanValue = _controller.text.replaceAll(',', '').replaceAll(' ', '');
+    if (cleanValue.isNotEmpty) {
+      final parsedValue = double.tryParse(cleanValue);
+      if (parsedValue != null) {
+        _controller.text = _currencyFormatter.format(parsedValue);
+      }
+    }
   }
 
   void _handleTextChange(String value) {
@@ -53,7 +92,11 @@ class _AmountInputFieldState extends State<AmountInputField> {
     final cleanValue = value.replaceAll(',', '').replaceAll(' ', '');
 
     if (cleanValue.isEmpty) {
-      widget.onAmountChanged(null);
+      // Debounce the BLoC event to 200ms while typing
+      _debounceTimer?.cancel();
+      _debounceTimer = Timer(const Duration(milliseconds: 200), () {
+        widget.onAmountChanged(null);
+      });
       return;
     }
 
@@ -61,18 +104,11 @@ class _AmountInputFieldState extends State<AmountInputField> {
     final parsedValue = double.tryParse(cleanValue);
 
     if (parsedValue != null) {
-      widget.onAmountChanged(parsedValue);
-
-      // Format and update the text field
-      final formattedValue = _currencyFormatter.format(parsedValue);
-
-      // Only update if the formatted value is different
-      if (_controller.text != formattedValue) {
-        _controller.value = TextEditingValue(
-          text: formattedValue,
-          selection: TextSelection.collapsed(offset: formattedValue.length),
-        );
-      }
+      // Debounce the BLoC event to 200ms while typing
+      _debounceTimer?.cancel();
+      _debounceTimer = Timer(const Duration(milliseconds: 200), () {
+        widget.onAmountChanged(parsedValue);
+      });
     }
   }
 
@@ -116,12 +152,13 @@ class _AmountInputFieldState extends State<AmountInputField> {
               Expanded(
                 child: TextField(
                   controller: _controller,
+                  focusNode: _focusNode,
                   enabled: widget.enabled,
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
                   ),
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[\d,.]')),
+                    FilteringTextInputFormatter.allow(RegExp(r'[\d.]')),
                   ],
                   style: theme.textTheme.headlineLarge?.copyWith(
                     fontWeight: FontWeight.bold,

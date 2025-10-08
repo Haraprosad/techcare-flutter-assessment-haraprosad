@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'dart:async';
 
-/// Form field for title input
-class TitleInputField extends StatelessWidget {
+/// Form field for title input with throttled onChange
+class TitleInputField extends StatefulWidget {
   final String initialValue;
   final Function(String) onChanged;
   final String? errorText;
@@ -17,28 +18,49 @@ class TitleInputField extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<TitleInputField> createState() => _TitleInputFieldState();
+}
+
+class _TitleInputFieldState extends State<TitleInputField> {
+  Timer? _debounceTimer;
+
+  @override
+  void dispose() {
+    _debounceTimer?.cancel();
+    super.dispose();
+  }
+
+  void _onTextChanged(String value) {
+    // Debounce to 300ms to reduce BLoC event spam while typing
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+      widget.onChanged(value);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return TextFormField(
-      initialValue: initialValue,
-      enabled: enabled,
+      initialValue: widget.initialValue,
+      enabled: widget.enabled,
       maxLength: 100,
       decoration: InputDecoration(
         labelText: 'Title *',
         hintText: 'Enter transaction title',
-        errorText: errorText,
+        errorText: widget.errorText,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         filled: true,
         fillColor: theme.colorScheme.surface,
       ),
-      onChanged: onChanged,
+      onChanged: _onTextChanged,
     );
   }
 }
 
-/// Form field for description input
-class DescriptionInputField extends StatelessWidget {
+/// Form field for description input with throttled onChange
+class DescriptionInputField extends StatefulWidget {
   final String? initialValue;
   final Function(String?) onChanged;
   final String? errorText;
@@ -53,24 +75,45 @@ class DescriptionInputField extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<DescriptionInputField> createState() => _DescriptionInputFieldState();
+}
+
+class _DescriptionInputFieldState extends State<DescriptionInputField> {
+  Timer? _debounceTimer;
+
+  @override
+  void dispose() {
+    _debounceTimer?.cancel();
+    super.dispose();
+  }
+
+  void _onTextChanged(String value) {
+    // Debounce to 300ms to reduce BLoC event spam while typing
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+      widget.onChanged(value.isEmpty ? null : value);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return TextFormField(
-      initialValue: initialValue,
-      enabled: enabled,
+      initialValue: widget.initialValue,
+      enabled: widget.enabled,
       maxLength: 500,
       maxLines: 3,
       decoration: InputDecoration(
         labelText: 'Description (Optional)',
         hintText: 'Add notes about this transaction',
-        errorText: errorText,
+        errorText: widget.errorText,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         filled: true,
         fillColor: theme.colorScheme.surface,
         alignLabelWithHint: true,
       ),
-      onChanged: (value) => onChanged(value.isEmpty ? null : value),
+      onChanged: _onTextChanged,
     );
   }
 }

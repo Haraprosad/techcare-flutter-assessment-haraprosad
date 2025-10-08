@@ -75,11 +75,12 @@ class TransactionBloc extends BaseBloc<TransactionEvent, TransactionState> {
     AppLogger.i(message: 'Loading transactions (page: ${event.page})...');
 
     // If there's a search query, add it to the filters
+    // Otherwise, clear the search query from filters
     final filters = state.searchQuery.isNotEmpty
         ? (event.filters ?? state.filters).copyWith(
             searchQuery: state.searchQuery,
           )
-        : (event.filters ?? state.filters);
+        : (event.filters ?? state.filters).copyWith(searchQuery: '');
 
     await handleApiCall(
       apiCall: () => _getTransactionsUseCase.call(
@@ -140,7 +141,7 @@ class TransactionBloc extends BaseBloc<TransactionEvent, TransactionState> {
     final nextPage = state.currentPage + 1;
     final filters = state.searchQuery.isNotEmpty
         ? state.filters.copyWith(searchQuery: state.searchQuery)
-        : state.filters;
+        : state.filters.copyWith(searchQuery: '');
 
     await handleApiCall(
       apiCall: () => _getTransactionsUseCase.call(
@@ -185,7 +186,7 @@ class TransactionBloc extends BaseBloc<TransactionEvent, TransactionState> {
 
     final filters = state.searchQuery.isNotEmpty
         ? state.filters.copyWith(searchQuery: state.searchQuery)
-        : state.filters;
+        : state.filters.copyWith(searchQuery: '');
 
     await handleApiCall(
       apiCall: () => _refreshTransactionsUseCase.call(
@@ -350,7 +351,16 @@ class TransactionBloc extends BaseBloc<TransactionEvent, TransactionState> {
   ) async {
     AppLogger.i(message: 'Deleting transaction: ${event.id}');
 
-    emit(state.copyWith(isOperationInProgress: true));
+    // Optimistic deletion - remove from UI immediately
+    final updatedTransactions = List<Transaction>.from(state.transactions)
+      ..removeWhere((t) => t.id == event.id);
+
+    emit(
+      state.copyWith(
+        transactions: updatedTransactions,
+        isOperationInProgress: true,
+      ),
+    );
 
     await handleApiCall(
       apiCall: () => _deleteTransactionUseCase.call(event.id),
@@ -364,13 +374,15 @@ class TransactionBloc extends BaseBloc<TransactionEvent, TransactionState> {
           ),
         );
 
-        // Refresh the transaction list
+        // Refresh the transaction list to sync with backend
         add(const RefreshTransactionsEvent());
       },
       onError: (failure) {
         AppLogger.e(
           message: 'Failed to delete transaction: ${failure.translatedMessage}',
         );
+
+        // On error, refresh to restore the item
         emit(
           state.copyWith(
             isOperationInProgress: false,
@@ -378,6 +390,9 @@ class TransactionBloc extends BaseBloc<TransactionEvent, TransactionState> {
             clearOperationMessage: true,
           ),
         );
+
+        // Refresh to restore the deleted item
+        add(const RefreshTransactionsEvent());
       },
       emit: emit,
       showLoader: false,

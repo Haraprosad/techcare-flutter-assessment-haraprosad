@@ -22,6 +22,7 @@ class _TransactionFilterBottomSheetState
   double _minAmount = 0;
   double _maxAmount = 100000;
   List<String> _selectedCategories = [];
+  DateTime? _lastRangeSliderUpdate;
 
   @override
   void initState() {
@@ -169,6 +170,17 @@ class _TransactionFilterBottomSheetState
               'BDT ${_maxAmount.toInt()}',
             ),
             onChanged: (RangeValues values) {
+              // Throttle setState to 50ms while dragging for better performance
+              final now = DateTime.now();
+              if (_lastRangeSliderUpdate != null &&
+                  now.difference(_lastRangeSliderUpdate!).inMilliseconds < 50) {
+                // Update values without setState to avoid excessive rebuilds
+                _minAmount = values.start;
+                _maxAmount = values.end;
+                return;
+              }
+
+              _lastRangeSliderUpdate = now;
               setState(() {
                 _minAmount = values.start;
                 _maxAmount = values.end;

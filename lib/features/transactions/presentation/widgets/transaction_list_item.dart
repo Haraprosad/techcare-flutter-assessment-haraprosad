@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:techcare_assessment_app/features/transactions/domain/entities/transaction.dart';
+import 'package:techcare_assessment_app/features/transactions/presentation/pages/add_edit_transaction_screen.dart';
 
 /// Individual transaction list item with swipe actions and animations
 class TransactionListItem extends StatefulWidget {
@@ -95,15 +96,19 @@ class _TransactionListItemState extends State<TransactionListItem>
             if (direction == DismissDirection.endToStart) {
               // Delete action
               final confirmed = await _showDeleteConfirmation(context);
-              if (confirmed == true && widget.onDelete != null) {
-                widget.onDelete!();
-                return true;
-              }
-              return false;
+              return confirmed == true;
             } else {
-              // Edit action - use the onTap callback
-              widget.onTap();
+              // Edit action - open edit screen
+              await _handleEdit(context);
               return false;
+            }
+          },
+          onDismissed: (direction) {
+            if (direction == DismissDirection.endToStart) {
+              // Call delete after dismissal animation completes
+              if (widget.onDelete != null) {
+                widget.onDelete!();
+              }
             }
           },
           // Smooth swipe animation settings
@@ -254,6 +259,32 @@ class _TransactionListItemState extends State<TransactionListItem>
         ],
       ),
     );
+  }
+
+  Future<void> _handleEdit(BuildContext context) async {
+    // Open the edit screen as a modal bottom sheet
+    final result = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.95,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        builder: (context, scrollController) => Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: AddEditTransactionScreen(transaction: widget.transaction),
+        ),
+      ),
+    );
+
+    // If transaction was updated, refresh the list
+    if (result == true && widget.onRefresh != null) {
+      widget.onRefresh!();
+    }
   }
 
   IconData _getIconData(String iconName) {
