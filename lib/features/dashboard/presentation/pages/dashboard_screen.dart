@@ -12,6 +12,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:techcare_assessment_app/core/theme/constants/breakpoints.dart';
 import 'package:techcare_assessment_app/core/widgets/responsive_layout_builder.dart';
 import 'package:techcare_assessment_app/core/widgets/offline_indicator_banner.dart';
+import 'package:techcare_assessment_app/core/widgets/app_drawer.dart';
+import 'package:techcare_assessment_app/core/theme/extensions/theme_extensions.dart';
+import 'package:techcare_assessment_app/core/localization/extension/loc.dart';
 
 /// The main dashboard - your financial overview at a glance.
 ///
@@ -77,6 +80,7 @@ class _DashboardScreenViewState extends State<_DashboardScreenView> {
   Widget build(BuildContext context) {
     return WithOfflineIndicator(
       child: Scaffold(
+        drawer: const AppDrawer(),
         body: BlocConsumer<DashboardBloc, DashboardState>(
           listenWhen: (previous, current) {
             // Only react to error changes to avoid duplicate snackbars
@@ -93,7 +97,7 @@ class _DashboardScreenViewState extends State<_DashboardScreenView> {
                     state.failure?.translatedMessage ?? 'An error occurred',
                   ),
                   action: SnackBarAction(
-                    label: 'Retry',
+                    label: context.loc.retry,
                     onPressed: () {
                       context.read<DashboardBloc>().add(
                         const LoadDashboardDataEvent(),
@@ -241,19 +245,42 @@ class _DashboardScreenViewState extends State<_DashboardScreenView> {
   /// Parallax app bar with notification badge
   Widget _buildAppBar(BuildContext context, DashboardState state) {
     final parallaxOffset = _scrollOffset * 0.5;
+    // Calculate if app bar is collapsed (collapsed when scroll > expandedHeight - toolbar height)
+    final isCollapsed = _scrollOffset > (120.h - kToolbarHeight);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colors = context.colors;
 
     return SliverAppBar(
       expandedHeight: 120.h,
       floating: true,
       pinned: true,
+      leading: Builder(
+        builder: (context) => IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () => Scaffold.of(context).openDrawer(),
+          tooltip: 'Open menu',
+        ),
+      ),
+      title: AnimatedOpacity(
+        opacity: isCollapsed ? 1.0 : 0.0,
+        duration: const Duration(milliseconds: 200),
+        child: Text(context.loc.app_title),
+      ),
+      centerTitle: false,
       flexibleSpace: FlexibleSpaceBar(
-        title: Transform.translate(
-          offset: Offset(0, parallaxOffset),
-          child: const Text(
-            'TechCare Finance',
-            style: TextStyle(
-              color: Colors.black87,
-              fontWeight: FontWeight.bold,
+        centerTitle: false,
+        titlePadding: EdgeInsets.only(left: 56.w, bottom: 16.h),
+        title: AnimatedOpacity(
+          opacity: isCollapsed ? 0.0 : 1.0,
+          duration: const Duration(milliseconds: 200),
+          child: Transform.translate(
+            offset: Offset(0, parallaxOffset),
+            child: Text(
+              context.loc.app_title,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ),
@@ -262,10 +289,15 @@ class _DashboardScreenViewState extends State<_DashboardScreenView> {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                Theme.of(context).primaryColor.withOpacity(0.8),
-                Theme.of(context).primaryColor.withOpacity(0.1),
-              ],
+              colors: isDark
+                  ? [
+                      colors.success.withOpacity(0.6),
+                      colors.success.withOpacity(0.1),
+                    ]
+                  : [
+                      Theme.of(context).primaryColor.withOpacity(0.8),
+                      Theme.of(context).primaryColor.withOpacity(0.1),
+                    ],
             ),
           ),
         ),
@@ -276,7 +308,10 @@ class _DashboardScreenViewState extends State<_DashboardScreenView> {
           position: badges.BadgePosition.topEnd(top: 8.h, end: 8.w),
           badgeContent: Text(
             '${state.notificationCount}',
-            style: TextStyle(color: Colors.white, fontSize: 10.sp),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onPrimary,
+              fontSize: 10.sp,
+            ),
           ),
           showBadge: state.notificationCount > 0,
           child: IconButton(
@@ -296,10 +331,14 @@ class _DashboardScreenViewState extends State<_DashboardScreenView> {
               // TODO: Navigate to profile screen
             },
             child: CircleAvatar(
-              backgroundColor: Theme.of(context).primaryColor.withOpacity(0.2),
+              backgroundColor: Theme.of(context).brightness == Brightness.dark
+                  ? Theme.of(context).colorScheme.primaryContainer
+                  : Theme.of(context).primaryColor.withOpacity(0.2),
               child: Icon(
                 Icons.person_outline,
-                color: Theme.of(context).primaryColor,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Theme.of(context).colorScheme.onPrimaryContainer
+                    : Theme.of(context).primaryColor,
               ),
             ),
           ),
@@ -314,14 +353,14 @@ class _DashboardScreenViewState extends State<_DashboardScreenView> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          'Recent Transactions',
+          context.loc.recent_transactions,
           style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
         ),
         TextButton(
           onPressed: () {
             // TODO: Navigate to all transactions screen
           },
-          child: const Text('View All'),
+          child: Text(context.loc.view_all),
         ),
       ],
     );
@@ -329,17 +368,21 @@ class _DashboardScreenViewState extends State<_DashboardScreenView> {
 
   /// Expandable FAB for quick actions (Add Income/Expense)
   Widget _buildSpeedDial(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = context.colors;
+    final isDark = theme.brightness == Brightness.dark;
+
     return SpeedDial(
       icon: Icons.add,
       activeIcon: Icons.close,
-      backgroundColor: Theme.of(context).primaryColor,
-      foregroundColor: Colors.white,
-      activeBackgroundColor: Colors.grey[700],
-      activeForegroundColor: Colors.white,
+      backgroundColor: isDark ? colors.success : theme.primaryColor,
+      foregroundColor: theme.colorScheme.onPrimary,
+      activeBackgroundColor: theme.colorScheme.surfaceContainerHighest,
+      activeForegroundColor: theme.colorScheme.onSurface,
       visible: true,
       closeManually: false,
       curve: Curves.easeInOut,
-      overlayColor: Colors.black,
+      overlayColor: theme.colorScheme.scrim,
       overlayOpacity: 0.5,
       elevation: 8.0,
       shape: const CircleBorder(),
@@ -347,19 +390,25 @@ class _DashboardScreenViewState extends State<_DashboardScreenView> {
       children: [
         SpeedDialChild(
           child: const Icon(Icons.arrow_upward),
-          backgroundColor: Colors.green,
-          foregroundColor: Colors.white,
-          label: 'Add Income',
-          labelStyle: const TextStyle(fontWeight: FontWeight.w500),
+          backgroundColor: colors.income,
+          foregroundColor: theme.colorScheme.onPrimary,
+          label: context.loc.add_income,
+          labelStyle: TextStyle(
+            fontWeight: FontWeight.w500,
+            color: theme.colorScheme.onSurface,
+          ),
           onTap: () =>
               _navigateToAddTransaction(context, TransactionType.income),
         ),
         SpeedDialChild(
           child: const Icon(Icons.arrow_downward),
-          backgroundColor: Colors.red,
-          foregroundColor: Colors.white,
-          label: 'Add Expense',
-          labelStyle: const TextStyle(fontWeight: FontWeight.w500),
+          backgroundColor: colors.expense,
+          foregroundColor: theme.colorScheme.onPrimary,
+          label: context.loc.add_expense,
+          labelStyle: TextStyle(
+            fontWeight: FontWeight.w500,
+            color: theme.colorScheme.onSurface,
+          ),
           onTap: () =>
               _navigateToAddTransaction(context, TransactionType.expense),
         ),
@@ -376,13 +425,16 @@ class _DashboardScreenViewState extends State<_DashboardScreenView> {
           floating: true,
           pinned: true,
           flexibleSpace: FlexibleSpaceBar(
-            title: const Text('TechCare Finance'),
+            title: Text(context.loc.app_title),
             background: Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Colors.grey[300]!, Colors.grey[100]!],
+                  colors: [
+                    Theme.of(context).colorScheme.surfaceContainerHighest,
+                    Theme.of(context).colorScheme.surfaceContainer,
+                  ],
                 ),
               ),
             ),
@@ -408,15 +460,17 @@ class _DashboardScreenViewState extends State<_DashboardScreenView> {
 
   /// Skeleton card placeholder
   Widget _buildSkeletonCard({required double height}) {
+    final colors = context.colors;
+
     return Container(
       height: height,
       decoration: BoxDecoration(
-        color: Colors.grey[300],
+        color: colors.skeleton,
         borderRadius: BorderRadius.circular(16.r),
       ),
       child: Center(
         child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(Colors.grey[400]!),
+          valueColor: AlwaysStoppedAnimation<Color>(colors.skeletonShimmer),
         ),
       ),
     );
@@ -453,6 +507,8 @@ class _DashboardScreenViewState extends State<_DashboardScreenView> {
 
   /// Empty state when no data available
   Widget _buildEmptyState(BuildContext context) {
+    final colors = context.colors;
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -460,21 +516,24 @@ class _DashboardScreenViewState extends State<_DashboardScreenView> {
           Icon(
             Icons.account_balance_wallet_outlined,
             size: 80.sp,
-            color: Colors.grey[400],
+            color: colors.disabled,
           ),
           SizedBox(height: 16.h),
           Text(
             'No dashboard data available',
             style: TextStyle(
               fontSize: 18.sp,
-              color: Colors.grey[600],
+              color: colors.textSecondary,
               fontWeight: FontWeight.w500,
             ),
           ),
           SizedBox(height: 8.h),
           Text(
             'Pull down to refresh',
-            style: TextStyle(fontSize: 14.sp, color: Colors.grey[500]),
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: colors.textSecondary.withOpacity(0.7),
+            ),
           ),
           SizedBox(height: 24.h),
           ElevatedButton.icon(
@@ -482,7 +541,7 @@ class _DashboardScreenViewState extends State<_DashboardScreenView> {
               context.read<DashboardBloc>().add(const LoadDashboardDataEvent());
             },
             icon: const Icon(Icons.refresh),
-            label: const Text('Retry'),
+            label: Text(context.loc.retry),
           ),
         ],
       ),

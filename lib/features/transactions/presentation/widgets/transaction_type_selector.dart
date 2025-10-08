@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:techcare_assessment_app/features/transactions/domain/entities/transaction.dart';
+import 'package:techcare_assessment_app/core/theme/extensions/theme_extensions.dart';
 
 /// Animated toggle switch for income/expense selection
 class TransactionTypeSelector extends StatelessWidget {
@@ -17,6 +18,7 @@ class TransactionTypeSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colors = context.colors;
 
     return Container(
       decoration: BoxDecoration(
@@ -31,7 +33,7 @@ class TransactionTypeSelector extends StatelessWidget {
               label: 'Expense',
               icon: Icons.arrow_upward,
               isSelected: selectedType == TransactionType.expense,
-              color: const Color(0xFFFF6B6B),
+              color: colors.expense,
               onTap: enabled
                   ? () => onTypeChanged(TransactionType.expense)
                   : null,
@@ -43,7 +45,7 @@ class TransactionTypeSelector extends StatelessWidget {
               label: 'Income',
               icon: Icons.arrow_downward,
               isSelected: selectedType == TransactionType.income,
-              color: const Color(0xFF00C853),
+              color: colors.income,
               onTap: enabled
                   ? () => onTypeChanged(TransactionType.income)
                   : null,
@@ -104,7 +106,7 @@ class _TypeOption extends StatelessWidget {
                 Icon(
                   icon,
                   color: isSelected
-                      ? Colors.white
+                      ? theme.colorScheme.onPrimary
                       : theme.colorScheme.onSurface.withOpacity(0.6),
                   size: 20,
                 ),
@@ -113,7 +115,7 @@ class _TypeOption extends StatelessWidget {
                   label,
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: isSelected
-                        ? Colors.white
+                        ? theme.colorScheme.onPrimary
                         : theme.colorScheme.onSurface.withOpacity(0.6),
                     fontWeight: isSelected
                         ? FontWeight.bold

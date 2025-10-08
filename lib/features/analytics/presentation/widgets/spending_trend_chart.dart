@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../domain/entities/monthly_trend.dart';
+import 'package:techcare_assessment_app/core/theme/extensions/theme_extensions.dart';
 
 /// Shows a 6-month line chart of income vs expenses.
 ///
@@ -50,6 +51,8 @@ class _SpendingTrendChartState extends State<SpendingTrendChart>
       return const SizedBox.shrink();
     }
 
+    final colors = context.colors;
+
     // Find the highest value to scale the chart properly
     final maxValue = widget.trends.fold<double>(
       0,
@@ -74,9 +77,9 @@ class _SpendingTrendChartState extends State<SpendingTrendChart>
             // Legend showing what the colors mean
             Row(
               children: [
-                _Legend(color: Colors.green, label: 'Income'),
+                _Legend(color: colors.income, label: 'Income'),
                 const SizedBox(width: 16),
-                _Legend(color: Colors.red, label: 'Expenses'),
+                _Legend(color: colors.expense, label: 'Expenses'),
               ],
             ),
             const SizedBox(height: 24),
@@ -89,6 +92,8 @@ class _SpendingTrendChartState extends State<SpendingTrendChart>
                     trends: widget.trends,
                     maxValue: maxValue,
                     animationProgress: _animation.value,
+                    incomeColor: colors.income,
+                    expenseColor: colors.expense,
                   );
                 },
               ),
@@ -123,23 +128,25 @@ class _SimpleLineChart extends StatelessWidget {
   final List<MonthlyTrend> trends;
   final double maxValue;
   final double animationProgress;
+  final Color incomeColor;
+  final Color expenseColor;
 
   const _SimpleLineChart({
     required this.trends,
     required this.maxValue,
     required this.animationProgress,
+    required this.incomeColor,
+    required this.expenseColor,
   });
 
   @override
   Widget build(BuildContext context) {
-    final currencyFormat = NumberFormat.compactCurrency(symbol: '৳');
-
     return CustomPaint(
       painter: _LineChartPainter(
         trends: trends,
         maxValue: maxValue,
-        incomeColor: Colors.green,
-        expenseColor: Colors.red,
+        incomeColor: incomeColor,
+        expenseColor: expenseColor,
         animationProgress: animationProgress,
       ),
       child: Column(

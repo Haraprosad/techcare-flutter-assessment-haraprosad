@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../domain/entities/category_breakdown.dart';
+import 'package:techcare_assessment_app/core/theme/extensions/theme_extensions.dart';
 
 /// Displays category spending as horizontal bars with percentages.
 ///
@@ -187,7 +188,7 @@ class _CategoryBar extends StatelessWidget {
                       child: LinearProgressIndicator(
                         // Animate bar from 0 to final percentage
                         value: (category.percentage / 100) * animation.value,
-                        backgroundColor: Colors.grey[200],
+                        backgroundColor: context.colors.skeleton,
                         color: _parseColor(category.categoryColor),
                         minHeight: 8,
                       ),

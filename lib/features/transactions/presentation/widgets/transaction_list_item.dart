@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:techcare_assessment_app/features/transactions/domain/entities/transaction.dart';
 import 'package:techcare_assessment_app/features/transactions/presentation/pages/add_edit_transaction_screen.dart';
+import 'package:techcare_assessment_app/core/theme/extensions/theme_extensions.dart';
 
 /// Individual transaction list item with swipe actions and animations
 class TransactionListItem extends StatefulWidget {
@@ -72,7 +73,8 @@ class _TransactionListItemState extends State<TransactionListItem>
   @override
   Widget build(BuildContext context) {
     final isIncome = widget.transaction.isIncome;
-    final amountColor = isIncome ? Colors.green.shade700 : Colors.red.shade700;
+    final colors = context.colors;
+    final amountColor = isIncome ? colors.income : colors.expense;
 
     return FadeTransition(
       opacity: _fadeAnimation,
@@ -81,13 +83,13 @@ class _TransactionListItemState extends State<TransactionListItem>
         child: Dismissible(
           key: Key(widget.transaction.id),
           background: _buildSwipeBackground(
-            color: Colors.blue,
+            color: colors.primary,
             icon: Icons.edit,
             alignment: Alignment.centerLeft,
             padding: const EdgeInsets.only(left: 20),
           ),
           secondaryBackground: _buildSwipeBackground(
-            color: Colors.red,
+            color: colors.expense,
             icon: Icons.delete,
             alignment: Alignment.centerRight,
             padding: const EdgeInsets.only(right: 20),

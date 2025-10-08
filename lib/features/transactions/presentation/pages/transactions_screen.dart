@@ -8,6 +8,7 @@ import 'package:techcare_assessment_app/features/transactions/presentation/widge
 import 'package:techcare_assessment_app/features/transactions/presentation/widgets/transaction_empty_state.dart';
 import 'package:techcare_assessment_app/features/transactions/presentation/widgets/transaction_filter_bottom_sheet.dart';
 import 'package:techcare_assessment_app/core/widgets/offline_indicator_banner.dart';
+import 'package:techcare_assessment_app/core/localization/extension/loc.dart';
 
 /// The main transactions screen - shows searchable, filterable list of transactions
 ///
@@ -95,7 +96,7 @@ class _TransactionsScreenBodyState extends State<_TransactionsScreenBody> {
   Widget build(BuildContext context) {
     return WithOfflineIndicator(
       child: Scaffold(
-        appBar: AppBar(title: const Text('Transactions'), elevation: 0),
+        appBar: AppBar(title: Text(context.loc.nav_transactions), elevation: 0),
         body: Column(
           children: [
             const Padding(
@@ -150,7 +151,7 @@ class _TransactionsScreenBodyState extends State<_TransactionsScreenBody> {
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () => _navigateToAddTransaction(context),
           icon: const Icon(Icons.add),
-          label: const Text('Add Transaction'),
+          label: Text(context.loc.add_transaction),
         ),
       ),
     );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../domain/entities/analytics_summary.dart';
+import 'package:techcare_assessment_app/core/theme/extensions/theme_extensions.dart';
 
 class SummaryStatsCard extends StatelessWidget {
   final AnalyticsSummary summary;
@@ -10,6 +11,7 @@ class SummaryStatsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currencyFormat = NumberFormat.currency(symbol: '৳');
+    final colors = context.colors;
 
     return Container(
       margin: const EdgeInsets.all(16),
@@ -20,7 +22,7 @@ class SummaryStatsCard extends StatelessWidget {
               title: 'Total Income',
               amount: currencyFormat.format(summary.totalIncome),
               change: summary.incomeChange,
-              color: Colors.green,
+              color: colors.income,
               icon: Icons.arrow_upward,
             ),
           ),
@@ -30,7 +32,7 @@ class SummaryStatsCard extends StatelessWidget {
               title: 'Total Expenses',
               amount: currencyFormat.format(summary.totalExpense),
               change: summary.expenseChange,
-              color: Colors.red,
+              color: colors.expense,
               icon: Icons.arrow_downward,
             ),
           ),
@@ -40,7 +42,7 @@ class SummaryStatsCard extends StatelessWidget {
               title: 'Net Balance',
               amount: currencyFormat.format(summary.netBalance),
               change: summary.netBalanceChange,
-              color: Colors.blue,
+              color: colors.primary,
               icon: Icons.account_balance_wallet,
             ),
           ),
@@ -68,6 +70,7 @@ class _StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isPositive = change >= 0;
+    final colors = context.colors;
 
     return Card(
       elevation: 2,
@@ -105,14 +108,14 @@ class _StatCard extends StatelessWidget {
                   Icon(
                     isPositive ? Icons.trending_up : Icons.trending_down,
                     size: 16,
-                    color: isPositive ? Colors.green : Colors.red,
+                    color: isPositive ? colors.success : colors.expense,
                   ),
                   const SizedBox(width: 4),
                   Text(
                     '${change.abs().toStringAsFixed(1)}%',
                     style: TextStyle(
                       fontSize: 12,
-                      color: isPositive ? Colors.green : Colors.red,
+                      color: isPositive ? colors.success : colors.expense,
                       fontWeight: FontWeight.w500,
                     ),
                   ),

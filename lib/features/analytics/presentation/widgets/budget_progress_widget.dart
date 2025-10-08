@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../domain/entities/category_breakdown.dart';
+import 'package:techcare_assessment_app/core/theme/extensions/theme_extensions.dart';
 
 class BudgetProgressWidget extends StatefulWidget {
   final List<CategoryBreakdown> categories;
@@ -99,17 +100,19 @@ class _BudgetCircle extends StatelessWidget {
     return Color(int.parse('FF$hexColor', radix: 16));
   }
 
-  Color _getBudgetStatusColor() {
+  Color _getBudgetStatusColor(BuildContext context) {
     final utilization = category.budgetUtilization ?? 0;
-    if (utilization <= 70) return Colors.green;
-    if (utilization <= 90) return Colors.orange;
-    return Colors.red;
+    final colors = context.colors;
+    if (utilization <= 70) return colors.success;
+    if (utilization <= 90) return colors.warning;
+    return colors.expense;
   }
 
   @override
   Widget build(BuildContext context) {
     final utilization = (category.budgetUtilization ?? 0).clamp(0.0, 100.0);
     final currencyFormat = NumberFormat.currency(symbol: '৳', decimalDigits: 0);
+    final colors = context.colors;
 
     return AnimatedBuilder(
       animation: animation,
@@ -135,14 +138,21 @@ class _BudgetCircle extends StatelessWidget {
                         CircularProgressIndicator(
                           value: animatedUtilization / 100,
                           strokeWidth: 8,
-                          backgroundColor: Colors.grey[200],
-                          color: _getBudgetStatusColor(),
+                          backgroundColor: colors.skeleton,
+                          color: _getBudgetStatusColor(context),
                         ),
-                        Text(
-                          '${animatedUtilization.toStringAsFixed(0)}%',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
+                        Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              '${animatedUtilization.toStringAsFixed(0)}%',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
                           ),
                         ),
                       ],

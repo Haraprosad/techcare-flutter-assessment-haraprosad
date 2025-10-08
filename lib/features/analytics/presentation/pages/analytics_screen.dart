@@ -9,6 +9,8 @@ import '../widgets/spending_trend_chart.dart';
 import '../widgets/summary_stats_card.dart';
 import '../widgets/time_period_selector.dart';
 import '../../../../core/widgets/offline_indicator_banner.dart';
+import 'package:techcare_assessment_app/core/theme/extensions/theme_extensions.dart';
+import 'package:techcare_assessment_app/core/localization/extension/loc.dart';
 
 class AnalyticsScreen extends StatelessWidget {
   const AnalyticsScreen({super.key});
@@ -29,7 +31,7 @@ class _AnalyticsView extends StatelessWidget {
     return WithOfflineIndicator(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Analytics'),
+          title: Text(context.loc.analytics),
           actions: [
             IconButton(
               icon: const Icon(Icons.refresh),
@@ -53,7 +55,9 @@ class _AnalyticsView extends StatelessWidget {
                     Icon(
                       Icons.error_outline,
                       size: 64,
-                      color: Colors.grey[400],
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.error.withOpacity(0.6),
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -70,7 +74,7 @@ class _AnalyticsView extends StatelessWidget {
                         );
                       },
                       icon: const Icon(Icons.refresh),
-                      label: const Text('Retry'),
+                      label: Text(context.loc.retry),
                     ),
                   ],
                 ),
@@ -85,7 +89,7 @@ class _AnalyticsView extends StatelessWidget {
                     Icon(
                       Icons.analytics_outlined,
                       size: 64,
-                      color: Colors.grey[400],
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                     const SizedBox(height: 16),
                     Text(

@@ -29,7 +29,7 @@ class TimePeriodSelector extends StatelessWidget {
                 selectedColor: Theme.of(context).colorScheme.primary,
                 labelStyle: TextStyle(
                   color: isSelected
-                      ? Colors.white
+                      ? Theme.of(context).colorScheme.onPrimary
                       : Theme.of(context).textTheme.bodyMedium?.color,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 ),

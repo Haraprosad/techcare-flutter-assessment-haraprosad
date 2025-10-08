@@ -84,6 +84,26 @@ class AppTheme {
         ),
         color: colors.surface,
       ),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: colors.surface,
+        selectedItemColor: colors.primary,
+        unselectedItemColor: colors.textSecondary,
+        selectedIconTheme: IconThemeData(color: colors.primary, size: 24),
+        unselectedIconTheme: IconThemeData(
+          color: colors.textSecondary,
+          size: 24,
+        ),
+        selectedLabelStyle: TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 12,
+        ),
+        unselectedLabelStyle: TextStyle(
+          fontWeight: FontWeight.w400,
+          fontSize: 12,
+        ),
+        type: BottomNavigationBarType.fixed,
+        elevation: 8,
+      ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ButtonStyles.elevatedButtonStyle(colors),
       ),

@@ -9,6 +9,8 @@ import 'package:techcare_assessment_app/core/widgets/responsive_layout_builder.d
 import 'package:techcare_assessment_app/core/theme/constants/app_spacing.dart';
 import 'package:techcare_assessment_app/core/theme/constants/app_sizes.dart';
 import 'package:techcare_assessment_app/core/widgets/animated_number_counter.dart';
+import 'package:techcare_assessment_app/core/theme/extensions/theme_extensions.dart';
+import 'package:techcare_assessment_app/core/localization/extension/loc.dart';
 
 /// Balance Card Widget
 ///
@@ -86,6 +88,10 @@ class _BalanceCardState extends State<BalanceCard>
   ) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
+    // Use success color (green) for dark theme, primary for light theme
+    final gradientColor = isDark ? context.colors.success : colorScheme.primary;
 
     return AnimatedBuilder(
       animation: _flipController,
@@ -105,13 +111,13 @@ class _BalanceCardState extends State<BalanceCard>
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  colorScheme.primary.withOpacity(0.8),
-                  colorScheme.primary.withOpacity(0.6),
+                  gradientColor.withOpacity(0.8),
+                  gradientColor.withOpacity(0.6),
                 ],
               ),
               boxShadow: [
                 BoxShadow(
-                  color: colorScheme.primary.withOpacity(0.3),
+                  color: gradientColor.withOpacity(0.3),
                   blurRadius: 20.r,
                   offset: Offset(0, 10.h),
                 ),
@@ -177,7 +183,7 @@ class _BalanceCardState extends State<BalanceCard>
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Total Balance',
+              context.loc.total_balance,
               style: textTheme.titleMedium?.copyWith(
                 color: cardTextColor,
                 fontWeight: FontWeight.w500,
@@ -219,7 +225,7 @@ class _BalanceCardState extends State<BalanceCard>
               child: _buildBalanceItem(
                 context: context,
                 icon: Icons.arrow_upward,
-                label: 'Monthly Income',
+                label: context.loc.monthly_income,
                 amount: balanceSummary.monthlyIncome,
                 isVisible: isVisible,
                 color: theme.colorScheme.tertiary,
@@ -236,7 +242,7 @@ class _BalanceCardState extends State<BalanceCard>
               child: _buildBalanceItem(
                 context: context,
                 icon: Icons.arrow_downward,
-                label: 'Monthly Expense',
+                label: context.loc.monthly_expense,
                 amount: balanceSummary.monthlyExpense,
                 isVisible: isVisible,
                 color: theme.colorScheme.error,
@@ -269,7 +275,7 @@ class _BalanceCardState extends State<BalanceCard>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Total Balance',
+                context.loc.total_balance,
                 style: textTheme.titleSmall?.copyWith(
                   color: cardTextColor,
                   fontWeight: FontWeight.w500,
@@ -314,7 +320,7 @@ class _BalanceCardState extends State<BalanceCard>
                 child: _buildBalanceItem(
                   context: context,
                   icon: Icons.arrow_upward,
-                  label: 'Income',
+                  label: context.loc.income,
                   amount: balanceSummary.monthlyIncome,
                   isVisible: isVisible,
                   color: theme.colorScheme.tertiary,
@@ -327,7 +333,7 @@ class _BalanceCardState extends State<BalanceCard>
                 child: _buildBalanceItem(
                   context: context,
                   icon: Icons.arrow_downward,
-                  label: 'Expense',
+                  label: context.loc.expense,
                   amount: balanceSummary.monthlyExpense,
                   isVisible: isVisible,
                   color: theme.colorScheme.error,

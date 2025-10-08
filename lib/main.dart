@@ -40,7 +40,10 @@ class MyApp extends StatelessWidget {
                   create: (context) =>
                       sl<ThemeBloc>()..add(const InitializeTheme()),
                 ),
-                BlocProvider<LocaleBloc>(create: (context) => sl<LocaleBloc>()),
+                BlocProvider<LocaleBloc>(
+                  create: (context) =>
+                      sl<LocaleBloc>()..add(const InitializeLocale()),
+                ),
                 BlocProvider<ConnectivityCubit>(
                   create: (context) => sl<ConnectivityCubit>(),
                 ),

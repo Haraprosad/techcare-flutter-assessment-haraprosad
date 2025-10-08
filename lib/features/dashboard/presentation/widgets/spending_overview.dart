@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:techcare_assessment_app/core/theme/extensions/theme_extensions.dart';
 
 class SpendingOverview extends StatefulWidget {
   const SpendingOverview({super.key});
@@ -13,23 +14,6 @@ class _SpendingOverviewState extends State<SpendingOverview>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _animation;
-
-  // Chart data
-  final List<SpendingData> _spendingData = [
-    SpendingData(value: 26.4, color: const Color(0xFFFF6B6B), title: 'Food'),
-    SpendingData(
-      value: 13.2,
-      color: const Color(0xFF4ECDC4),
-      title: 'Transport',
-    ),
-    SpendingData(
-      value: 27.4,
-      color: const Color(0xFFFFD93D),
-      title: 'Shopping',
-    ),
-    SpendingData(value: 11.3, color: const Color(0xFFF38181), title: 'Bills'),
-    SpendingData(value: 21.7, color: const Color(0xFF95A5A6), title: 'Other'),
-  ];
 
   @override
   void initState() {
@@ -56,14 +40,25 @@ class _SpendingOverviewState extends State<SpendingOverview>
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    // Chart data - using theme colors
+    final spendingData = [
+      SpendingData(value: 26.4, color: colors.chartColor1, title: 'Food'),
+      SpendingData(value: 13.2, color: colors.chartColor2, title: 'Transport'),
+      SpendingData(value: 27.4, color: colors.chartColor3, title: 'Shopping'),
+      SpendingData(value: 11.3, color: colors.chartColor4, title: 'Bills'),
+      SpendingData(value: 21.7, color: colors.chartColor5, title: 'Other'),
+    ];
+
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.cardBackground,
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: colors.textSecondary.withOpacity(0.1),
             blurRadius: 8.r,
             offset: Offset(0, 4.h),
           ),
@@ -74,7 +69,11 @@ class _SpendingOverviewState extends State<SpendingOverview>
         children: [
           Text(
             'Spending Overview',
-            style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: 18.sp,
+              fontWeight: FontWeight.bold,
+              color: colors.textPrimary,
+            ),
           ),
           SizedBox(height: 16.h),
           SizedBox(
@@ -84,7 +83,7 @@ class _SpendingOverviewState extends State<SpendingOverview>
               builder: (context, child) {
                 return PieChart(
                   PieChartData(
-                    sections: _buildAnimatedSections(),
+                    sections: _buildAnimatedSections(spendingData),
                     sectionsSpace: 2.w,
                     centerSpaceRadius: 40.r,
                     startDegreeOffset: -90,
@@ -98,20 +97,22 @@ class _SpendingOverviewState extends State<SpendingOverview>
     );
   }
 
-  List<PieChartSectionData> _buildAnimatedSections() {
-    return _spendingData.map((data) {
+  List<PieChartSectionData> _buildAnimatedSections(List<SpendingData> data) {
+    final colors = context.colors;
+
+    return data.map((item) {
       // Animate from 0 to final value
-      final animatedValue = data.value * _animation.value;
+      final animatedValue = item.value * _animation.value;
 
       return PieChartSectionData(
         value: animatedValue,
-        color: data.color,
-        title: _animation.value > 0.7 ? data.title : '',
+        color: item.color,
+        title: _animation.value > 0.7 ? item.title : '',
         radius: 60.r,
         titleStyle: TextStyle(
           fontSize: 12.sp,
           fontWeight: FontWeight.bold,
-          color: Colors.white,
+          color: colors.onPrimaryContainer,
         ),
       );
     }).toList();

@@ -27,5 +27,79 @@
     "error_transaction_not_found": "লেনদেন পাওয়া যায়নি",
     
     "try_again": "আবার চেষ্টা করুন",
-    "home": "হোম"
+    "retry": "পুনরায় চেষ্টা করুন",
+    "home": "হোম",
+    "cancel": "বাতিল করুন",
+    "delete": "মুছুন",
+    "save": "সংরক্ষণ করুন",
+    "update": "আপডেট করুন",
+    "apply": "প্রয়োগ করুন",
+    "reset": "রিসেট করুন",
+
+    "nav_dashboard": "ড্যাশবোর্ড",
+    "nav_transactions": "লেনদেন",
+    "nav_analytics": "বিশ্লেষণ",
+
+    "app_title": "টেককেয়ার ফিন্যান্স",
+    "drawer_title": "টেককেয়ার ফিন্যান্স",
+    "toggle_theme": "থিম পরিবর্তন করুন",
+    "change_language": "ভাষা পরিবর্তন করুন",
+    "select_language": "ভাষা নির্বাচন করুন",
+    "language_english": "English",
+    "language_english_subtitle": "English (US)",
+    "language_bengali": "বাংলা",
+    "language_bengali_subtitle": "Bengali",
+
+    "total_balance": "মোট ব্যালেন্স",
+    "monthly_income": "মাসিক আয়",
+    "monthly_expense": "মাসিক ব্যয়",
+    "view_all": "সবগুলি দেখুন",
+    "add_income": "আয় যোগ করুন",
+    "add_expense": "ব্যয় যোগ করুন",
+
+    "total_income": "মোট আয়",
+    "total_expenses": "মোট ব্যয়",
+    "net_balance": "নিট ব্যালেন্স",
+    "income": "আয়",
+    "expense": "ব্যয়",
+    "expenses": "ব্যয়সমূহ",
+
+    "add_transaction": "লেনদেন যোগ করুন",
+    "edit_transaction": "লেনদেন সম্পাদনা করুন",
+    "delete_transaction": "লেনদেন মুছুন",
+    "delete_transaction_confirmation": "আপনি কি নিশ্চিত যে আপনি এই লেনদেন মুছতে চান?",
+    "discard_changes": "পরিবর্তন বাতিল করবেন?",
+    "discard_changes_confirmation": "আপনি কি নিশ্চিত যে আপনি আপনার পরিবর্তনগুলি বাতিল করতে চান?",
+    "continue_editing": "সম্পাদনা চালিয়ে যান",
+    "discard": "বাতিল করুন",
+
+    "title_field": "শিরোনাম *",
+    "description_field": "বিবরণ (ঐচ্ছিক)",
+    "date_field": "তারিখ *",
+    "time_field": "সময় (ঐচ্ছিক)",
+    "amount_field": "পরিমাণ *",
+
+    "category": "বিভাগ",
+    "select_category": "বিভাগ নির্বাচন করুন",
+
+    "filters": "ফিল্টার",
+    "clear_filters": "ফিল্টার সাফ করুন",
+    "no_transactions": "কোন লেনদেন পাওয়া যায়নি",
+    "no_transactions_message": "এখানে দেখতে আপনার লেনদেন যোগ করা শুরু করুন",
+    
+    "date_range": "তারিখ পরিসীমা",
+    "start_date": "শুরুর তারিখ",
+    "end_date": "শেষ তারিখ",
+    "today": "আজ",
+    "this_week": "এই সপ্তাহ",
+    "this_month": "এই মাস",
+    "last_3_months": "গত ৩ মাস",
+    
+    "type": "প্রকার",
+    "all": "সকল",
+    "amount_range": "পরিমাণ পরিসীমা",
+
+    "spending_overview": "ব্যয়ের সংক্ষিপ্ত বিবরণ",
+    "recent_transactions": "সাম্প্রতিক লেনদেন",
+    "analytics": "বিশ্লেষণ"
 }
